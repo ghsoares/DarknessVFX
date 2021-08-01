@@ -1,0 +1,437 @@
+[gd_scene load_steps=16 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+render_mode unshaded;
+
+const int MAX_STEPS = 128;
+const float MAX_DISTANCE = 999.0;
+const float SURFACE_DISTANCE = 0.005;
+const float NORMAL_PRECISION = 1f;
+
+uniform sampler2D noiseTex;
+uniform vec2 tiling = vec2(64.0);
+uniform vec2 warpTiling = vec2(256.0);
+uniform float warpAmount = 32.0;
+
+uniform float riftDepth = 512.0;
+uniform float riftRadius = 32f;
+uniform float riftPerc : hint_range(0.0, 1.0) = 1.0;
+
+uniform float riftCrackOff = .5f;
+uniform float riftCrackWidth = .1f;
+uniform float lightSteps = 8.0;
+uniform vec3 sunDir = vec3(1.0, -1.0, 1.0);
+uniform sampler2D lightGrad;
+
+uniform sampler2D groundTexture;
+uniform vec2 groundTiling = vec2(256, 256);
+uniform vec4 groundColor : hint_color;
+uniform vec4 riftColor : hint_color;
+uniform vec4 riftEmission : hint_color;
+uniform float riftBottomPower = 2.0f;
+
+void vertex() {
+	POSITION = vec4(VERTEX, 1f);
+}
+
+float EaseInOutCirc(float x) {
+return x < 0.5
+  ? (1f - sqrt(1f - pow(2f * x, 2f))) / 2f
+  : (sqrt(1f - pow(-2f * x + 2f, 2f)) + 1f) / 2f;
+}
+
+float SampleNoise(vec3 pos) {
+	vec2 warpUv = pos.xz / warpTiling;
+	
+	float n = (texture(noiseTex, warpUv).r * 2f - 1f) * 3.1415;
+	vec2 warp = vec2(cos(n), sin(n)) * warpAmount;
+	
+	vec2 uv = (pos.xz + warp) / tiling;
+	n = texture(noiseTex, uv).r;
+	
+	return n;
+}
+
+float SampleRift(vec3 pos) {
+	float n = SampleNoise(pos);
+	vec2 riftPos = vec2(0.0);
+	float riftSqrDst = pow(riftPos.x - pos.x, 2.0) + pow(riftPos.y - pos.z, 2.0);
+	float riftRad = riftRadius * riftRadius;
+	
+	float riftT = riftSqrDst / riftRad;
+	riftT -= clamp(1.0 - riftT, 0.0, 1.0) * riftPerc * .5f;
+	
+	float crack = 1.0 - abs(n - riftCrackOff) / riftCrackWidth;
+	n = mix(n, crack, clamp(riftT * 2f, 0.0, 1.0));
+	n -= riftT;
+	n -= 1.0;
+	n += riftPerc;
+	
+	n = clamp(n * 2.0, 0.0, 1.0);
+	float disp = mix(0.0, riftDepth, n);
+	
+	return disp;
+}
+
+void SampleDistance(vec3 pos, out vec3 rgb, out float dst, out vec3 emissive) {
+	rgb = texture(groundTexture, pos.xz / groundTiling).rgb * groundColor.rgb;
+	dst = MAX_DISTANCE;
+	emissive = vec3(0.0);
+	
+	/*vec3 spPos = vec3(0.0, riftPerc * 64.0 - 64.0, 0.0);
+	float spRadius = 16.0;
+	dst = length(pos - spPos) - spRadius;*/
+	
+	float disp = SampleRift(pos);
+	
+	float planeDst = pos.y + disp;
+	dst = min(dst, planeDst);
+	
+	if (disp > 0.0){
+		rgb = riftColor.rgb;
+		//emissive = riftEmission.rgb;
+	} 
+	float dispT = -pos.y - riftDepth;
+	dispT = 1.0 - clamp(-dispT / 8f, 0.0, 1.0);
+	emissive = riftEmission.rgb * dispT * riftBottomPower;
+}
+
+float SampleDistanceSimple(vec3 pos) {
+	float disp = SampleRift(pos);
+	
+	float planeDst = pos.y + disp;
+	float dst = planeDst;
+	
+	return dst;
+}
+
+vec3 GetNormal(vec3 p) {
+	float d = SampleDistanceSimple(p);
+	vec2 e = vec2(NORMAL_PRECISION, 0.0);
+	vec3 n = d - vec3(
+		SampleDistanceSimple(p - e.xyy),
+		SampleDistanceSimple(p - e.yxy),
+		SampleDistanceSimple(p - e.yyx)
+	);
+	return normalize(n);
+}
+
+void Raymarch(vec3 origin, vec3 dir, out vec3 hitPos, out float d, out vec3 normal, out vec3 rgb, out vec3 emissive) {
+	d = 0.0;
+	rgb = vec3(0.0);
+	emissive = vec3(0.0);
+	for (int i = 0; i < MAX_STEPS; ++i) {
+		vec3 p = origin + dir * d;
+		//vec4 scene = SampleDistance(p);
+		vec3 sceneRgb;
+		float sceneDst;
+		vec3 sceneEmissive;
+		SampleDistance(p, sceneRgb, sceneDst, sceneEmissive);
+		rgb = sceneRgb;
+		emissive = sceneEmissive;
+		d += (sceneDst < 0.0 ? sceneDst * .2f : sceneDst * .2f);
+		if (d > MAX_DISTANCE || sceneDst < SURFACE_DISTANCE) {
+			break;
+		}
+	}
+
+	hitPos = origin + dir * d;
+	normal = GetNormal(hitPos);
+}
+
+void fragment() {
+	// REGION Gets ray dir from camera, grabbed from here: https://github.com/Zylann/godot_sdf_blender/blob/master/addons/zylann.sdf_blender/raymarch.shader
+	vec3 ndc = vec3(SCREEN_UV, 0.0) * 2.0 - 1.0;
+	vec4 view_coords = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+	view_coords.xyz /= view_coords.w;
+	vec3 world_cam_pos = (CAMERA_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	vec4 world_coords = CAMERA_MATRIX * vec4(view_coords.xyz, 1.0);
+	
+	vec3 ray_origin = world_coords.xyz;
+	vec3 ray_dir = normalize(world_coords.xyz - world_cam_pos);
+	// ENDREGION
+	
+	vec3 hitPos;
+	float hitDst;
+	vec3 hitNormal;
+	vec3 rgb;
+	vec3 emissive;
+	
+	Raymarch(ray_origin, ray_dir, hitPos, hitDst, hitNormal, rgb, emissive);
+	if (hitDst >= MAX_DISTANCE) discard;
+	
+	float dt = dot(hitNormal, -normalize(sunDir)) * .5f + .5f;
+	dt = floor(dt * lightSteps) / (lightSteps - 1.0);
+	vec3 alb = rgb * texture(lightGrad, vec2(dt)).rgb;
+	alb += emissive;
+	
+	ALBEDO = alb;
+	DEPTH = hitDst / MAX_DISTANCE;
+}
+
+
+
+
+"
+
+[sub_resource type="Gradient" id=6]
+offsets = PoolRealArray( 0.455399, 1 )
+colors = PoolColorArray( 0.441406, 0.441406, 0.441406, 1, 1, 1, 1, 1 )
+
+[sub_resource type="GradientTexture" id=7]
+gradient = SubResource( 6 )
+
+[sub_resource type="OpenSimplexNoise" id=2]
+
+[sub_resource type="NoiseTexture" id=3]
+seamless = true
+noise = SubResource( 2 )
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 1 )
+shader_param/tiling = Vector2( 256, 256 )
+shader_param/warpTiling = Vector2( 512, 512 )
+shader_param/warpAmount = 16.0
+shader_param/riftDepth = 32.0
+shader_param/riftRadius = 128.0
+shader_param/riftPerc = 1.0
+shader_param/riftCrackOff = 0.465
+shader_param/riftCrackWidth = 0.2
+shader_param/lightSteps = 32.0
+shader_param/sunDir = Vector3( 1, -1, 1 )
+shader_param/groundTiling = Vector2( 64, 64 )
+shader_param/groundColor = Color( 0.454902, 0.454902, 0.454902, 1 )
+shader_param/riftColor = Color( 0.207843, 0, 0.180392, 1 )
+shader_param/riftEmission = Color( 0.494118, 0, 0.239216, 1 )
+shader_param/riftBottomPower = 2.0
+shader_param/noiseTex = SubResource( 3 )
+shader_param/lightGrad = SubResource( 7 )
+shader_param/groundTexture = ExtResource( 1 )
+
+[sub_resource type="QuadMesh" id=5]
+size = Vector2( 2, 2 )
+
+[sub_resource type="Shader" id=9]
+code = "shader_type spatial;
+render_mode unshaded;
+
+const float SURFACE_DST = .01;
+const int MAX_STEPS = 256;
+const float MAX_DISTANCE = 256f;
+const float NORMAL_EPSILON = .1f;
+
+uniform vec3 sunDir = vec3(1f, -1f, 1f);
+uniform float lightSteps = 2f;
+uniform sampler2D lightGradient;
+
+uniform float riftRadius = 16f;
+uniform float riftInnerRadius = 8f;
+uniform float riftDepth = 8f;
+uniform sampler2D riftCrackNoise;
+uniform vec2 riftCrackTiling = vec2(32f);
+uniform vec2 riftCrackWarpTiling = vec2(64f);
+uniform float riftCrackWarpAmount = 4f;
+
+uniform float riftCrackOff = .5f;
+uniform float riftCrackWidth = .1f;
+
+uniform float riftPercentage = .5f;
+
+uniform vec2 riftFogMotion = vec2(32f);
+uniform vec2 riftFogTiling = vec2(4f);
+uniform float riftFogAmplitude = 1f;
+uniform float riftFogWidth = .1f;
+uniform vec4 riftFogColor : hint_color = vec4(1f);
+
+uniform sampler2D brickTex;
+uniform vec4 brickColor : hint_color = vec4(1f);
+
+uniform vec2 brickTiling = vec2(32f, 8f);
+uniform float brickOffset = 32f;
+uniform float brickRadius = 1f;
+uniform float brickWidth = .1f;
+uniform float brickDepth = .25f;
+
+float SampleRift(vec3 pos) {
+	vec2 warpUv = pos.xz / riftCrackWarpTiling;
+	float a = (texture(riftCrackNoise, warpUv).r * 2f - 1f) * 3.1415;
+	vec2 warp = vec2(cos(a), sin(a)) * riftCrackWarpAmount;
+	
+	vec2 uv = (pos.xz + warp) / riftCrackTiling;
+	float n = texture(riftCrackNoise, uv).r;
+	
+	n = abs(n - riftCrackOff) / riftCrackWidth;
+	n = 1f - clamp(n, 0f, 1f);
+	
+	return n;
+}
+
+float SampleBrick(vec3 pos) {
+	float h = 0f;
+	
+	vec2 gridIdx = floor(pos.xz / brickTiling);
+	vec2 grid = fract((pos.xz + vec2(gridIdx.y * brickOffset, 0f)) / brickTiling) * brickTiling;
+	grid -= brickTiling * .5f;
+	
+	vec2 brickSize = brickTiling - vec2(brickRadius * 1f);
+	
+	vec2 d = abs(grid) - brickSize * .5f;
+	float brickDst = length(max(d, 0f)) + min(max(d.x, d.y), 0f);
+	
+	float t = brickDst / brickRadius;
+	h = clamp(t, 0f, 1f) * -brickDepth;
+	
+	return h;
+}
+
+float Scene(vec3 pos) {
+	float rift = SampleRift(pos);
+	
+	float centerDst = length(pos.xz);
+	float rad1 = mix(0f, riftInnerRadius, riftPercentage);
+	float rad2 = mix(riftInnerRadius, riftRadius, riftPercentage);
+	rift -= ((centerDst - rad1) / (rad2 - rad1)) * 2f;
+	
+	rift -= 1f;
+	rift += riftPercentage * 1f;
+	
+	rift = clamp(rift, 0f, 1f);
+	float h = mix(0f, -riftDepth, rift) + SampleBrick(pos);
+	//float h = SampleBrick(pos);
+	return pos.y - h;
+}
+
+vec3 Normal(vec3 pos) {
+	float d = Scene(pos);
+	vec2 e = vec2(NORMAL_EPSILON, 0.0);
+	vec3 n = d - vec3(
+		Scene(pos - e.xyy),
+		Scene(pos - e.yxy),
+		Scene(pos - e.yyx));
+	return normalize(n);
+}
+
+float RayMarch(vec3 ro, vec3 rd) {
+	float d = 0f;
+	for (int i = 0; i < MAX_STEPS; i++) {
+		vec3 pos = ro + rd * d;
+		float sceneDst = Scene(pos);
+		d += sceneDst * .1f;
+		if (d > MAX_DISTANCE || sceneDst <= SURFACE_DST) break;
+	}
+	return d;
+}
+
+float Fog(vec3 pos, float time) {
+	float riftN = 0f;
+	
+	int iterations = 3;
+	for (int i = 0; i < iterations; i++) {
+		float t = float(i) / float(iterations - 1);
+		vec2 motion = mix(riftFogMotion * .5f, riftFogMotion * 1f, t);
+		riftN += texture(riftCrackNoise, (pos.xz + time * motion) / riftFogTiling).r;
+	}
+	riftN /= float(iterations);
+	
+	float riftF = riftN * riftFogAmplitude;
+	riftF = riftDepth - riftF;
+	
+	float riftT = 1f - clamp((pos.y + riftF) / riftFogWidth, 0f, 1f);
+	
+	return riftT;
+}
+
+void fragment() {
+	vec3 world = (CAMERA_MATRIX * vec4(VERTEX, 1.0)).rgb;
+	vec3 camera = (CAMERA_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).rgb;
+	vec3 dir = normalize(world - camera);
+	vec3 worldNormal = (CAMERA_MATRIX * vec4(NORMAL, 0f)).rgb;
+	
+	vec3 ro = world - dir * SURFACE_DST;
+	vec3 rd = dir;
+	
+	float depth = RayMarch(ro, rd);
+	if (depth < MAX_DISTANCE) {
+		world = ro + rd * depth;
+		worldNormal = Normal(world);
+	}
+	
+	float light = dot(worldNormal, -normalize(sunDir)) * .5f + .5f;
+	light = floor(light * lightSteps) / (lightSteps - 1f);
+	vec3 lightC = texture(lightGradient, vec2(light)).rgb;
+	
+	vec2 gridIdx = floor(world.xz / brickTiling);
+	vec2 grid = fract((world.xz + vec2(gridIdx.y * brickOffset, 0f)) / brickTiling);
+	
+	vec3 col = texture(brickTex, grid).rgb * brickColor.rgb;
+	col *= lightC;
+	
+	float riftT = Fog(world, TIME);
+	col = mix(col, riftFogColor.rgb, riftT);
+	
+	ALBEDO = col;
+}
+
+
+"
+
+[sub_resource type="Gradient" id=11]
+offsets = PoolRealArray( 0.5, 1 )
+colors = PoolColorArray( 0.245117, 0, 0.165167, 1, 1, 0.6875, 0.993286, 1 )
+
+[sub_resource type="GradientTexture" id=12]
+gradient = SubResource( 11 )
+
+[sub_resource type="OpenSimplexNoise" id=13]
+
+[sub_resource type="NoiseTexture" id=14]
+seamless = true
+noise = SubResource( 13 )
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = SubResource( 9 )
+shader_param/sunDir = Vector3( 1, -1, 1 )
+shader_param/lightSteps = 4.0
+shader_param/riftRadius = 16.0
+shader_param/riftInnerRadius = 8.0
+shader_param/riftDepth = 4.0
+shader_param/riftCrackTiling = Vector2( 32, 32 )
+shader_param/riftCrackWarpTiling = Vector2( 64, 64 )
+shader_param/riftCrackWarpAmount = 4.0
+shader_param/riftCrackOff = 0.5
+shader_param/riftCrackWidth = 0.1
+shader_param/riftPercentage = 1.0
+shader_param/riftFogMotion = Vector2( 4, 4 )
+shader_param/riftFogTiling = Vector2( 32, 32 )
+shader_param/riftFogAmplitude = 3.0
+shader_param/riftFogWidth = 3.0
+shader_param/riftFogColor = Color( 0.87451, 0, 1, 1 )
+shader_param/brickColor = Color( 1, 1, 1, 1 )
+shader_param/brickTiling = Vector2( 4, 2 )
+shader_param/brickOffset = 2.0
+shader_param/brickRadius = 0.25
+shader_param/brickWidth = 1.0
+shader_param/brickDepth = 0.1
+shader_param/lightGradient = SubResource( 12 )
+shader_param/riftCrackNoise = SubResource( 14 )
+shader_param/brickTex = ExtResource( 1 )
+
+[sub_resource type="PlaneMesh" id=8]
+size = Vector2( 64, 64 )
+
+[node name="Scene" type="Spatial"]
+
+[node name="RayMarch" type="MeshInstance" parent="."]
+visible = false
+material_override = SubResource( 4 )
+extra_cull_margin = 9999.0
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="Parallax" type="MeshInstance" parent="."]
+material_override = SubResource( 10 )
+mesh = SubResource( 8 )
+material/0 = null
