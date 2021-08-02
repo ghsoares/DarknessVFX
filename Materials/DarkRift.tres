@@ -1,0 +1,50 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=2]
+
+[ext_resource path="res://Shaders/DarkRift.shader" type="Shader" id=2]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0.506667, 1 )
+colors = PoolColorArray( 0.245117, 0, 0.165167, 1, 1, 0.663086, 0.992761, 1 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[sub_resource type="OpenSimplexNoise" id=3]
+
+[sub_resource type="NoiseTexture" id=4]
+seamless = true
+noise = SubResource( 3 )
+
+[resource]
+shader = ExtResource( 2 )
+shader_param/displacementTiling = Vector2( 2, 2 )
+shader_param/displacementMotion = Vector2( 4, 4 )
+shader_param/displacementDepth = 4.0
+shader_param/displacementAmount = 0.0
+shader_param/sunDir = Vector3( 1, -1, 1 )
+shader_param/lightSteps = 4.0
+shader_param/riftRadius = 32.0
+shader_param/riftInnerRadius = 10.0
+shader_param/riftDepth = 6.0
+shader_param/riftCrackTiling = Vector2( 32, 32 )
+shader_param/riftCrackWarpTiling = Vector2( 64, 64 )
+shader_param/riftCrackWarpAmount = 4.0
+shader_param/riftCrackOff = 0.5
+shader_param/riftCrackWidth = 0.1
+shader_param/riftPercentage = 1.0
+shader_param/riftFogMotion = Vector2( 4, 4 )
+shader_param/riftFogTiling = Vector2( 32, 32 )
+shader_param/riftFogAmplitude = 3.0
+shader_param/riftFogWidth = 4.0
+shader_param/riftFogColor = Color( 0.87451, 0, 1, 1 )
+shader_param/brickTexScale = Vector2( 2, 2 )
+shader_param/brickColor = Color( 0.211765, 0.105882, 0.164706, 1 )
+shader_param/brickTiling = Vector2( 4, 2 )
+shader_param/brickOffset = 2.0
+shader_param/brickRadius = 0.332
+shader_param/brickWidth = 1.0
+shader_param/brickDepth = 0.1
+shader_param/zNear = 0.05
+shader_param/zFar = 500.0
+shader_param/lightGradient = SubResource( 2 )
+shader_param/riftCrackNoise = SubResource( 4 )
