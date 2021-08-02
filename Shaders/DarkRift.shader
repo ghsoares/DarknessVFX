@@ -2,7 +2,7 @@ shader_type spatial;
 render_mode unshaded;
 
 const float SURFACE_DST = .01;
-const int MAX_STEPS = 64;
+const int MAX_STEPS = 16;
 const float MAX_DISTANCE = 256f;
 const float NORMAL_EPSILON = .1f;
 
@@ -47,11 +47,11 @@ uniform float brickDepth = .25f;
 uniform float zNear = .05f;
 uniform float zFar = 500f;
 
-varying mat4 it_mv;
+varying mat4 mv;
 varying float time;
 
 void vertex() {
-	it_mv = inverse(transpose(MODELVIEW_MATRIX));
+	mv = MODELVIEW_MATRIX;
 	time = TIME;
 }
 
@@ -184,17 +184,11 @@ void fragment() {
 	float riftT = Fog(world);
 	col = mix(col, riftFogColor.rgb, riftT);
 	
-	/*
-	float4 clip_pos = mul(UNITY_MATRIX_VP, float4(ray_pos, 1.0));
-	o.zvalue = clip_pos.z / clip_pos.w;
-	*/
-	
-	//MODELVIEW_MATRIX
-	//
-	float writeDepth = (it_mv * vec4(world, 1f)).z;
+	vec4 ndc = PROJECTION_MATRIX * INV_CAMERA_MATRIX * vec4(world, 1f);
+	float writeDepth = (ndc.z / ndc.w);
 	
 	ALBEDO = col;
-	//DEPTH = writeDepth * 1f;
+	DEPTH = writeDepth;
 }
 
 

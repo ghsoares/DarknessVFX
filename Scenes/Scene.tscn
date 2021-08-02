@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://icon.png" type="Texture" id=1]
 [ext_resource path="res://Materials/DarkRift.tres" type="Material" id=2]
@@ -218,7 +218,11 @@ size = Vector2( 2, 2 )
 [sub_resource type="PlaneMesh" id=8]
 size = Vector2( 64, 64 )
 
-[sub_resource type="Animation" id=13]
+[sub_resource type="SphereMesh" id=9]
+radius = 8.0
+height = 16.0
+
+[sub_resource type="Animation" id=10]
 length = 8.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Parallax:material_override:shader_param/riftInnerRadius")
@@ -284,9 +288,14 @@ material_override = ExtResource( 2 )
 mesh = SubResource( 8 )
 material/0 = null
 
+[node name="MeshInstance" type="MeshInstance" parent="."]
+mesh = SubResource( 9 )
+material/0 = null
+
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.735724, 0.274982, -0.618947, 0, 0.913869, 0.406009, 0.677282, -0.29871, 0.672355, -12.0351, 6.62905, 13.0033 )
+visible = false
 current = true
 
 [node name="Anim" type="AnimationPlayer" parent="."]
-anims/RiftAppear = SubResource( 13 )
+anims/RiftAppear = SubResource( 10 )
