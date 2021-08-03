@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded;
 
-const int LIGHT_STEPS = 32;
+const int LIGHT_STEPS = 60;
 
 uniform vec2 displacementTiling = vec2(8f);
 uniform vec2 displacementMotion = vec2(8f);
@@ -10,6 +10,8 @@ uniform float displacementAmount = 2f;
 
 uniform float riftRadius = 16f;
 uniform float riftInnerRadius = 8f;
+uniform float riftInnerDepthSub = 1f;
+uniform float riftOuterDepthSub = 1f;
 uniform float riftDepth = 8f;
 uniform sampler2D riftCrackNoise : hint_albedo;
 uniform vec2 riftCrackTiling = vec2(32f);
@@ -89,13 +91,24 @@ vec3 SceneLight(vec3 pos) {
 	vec3 l = vec3(0f);
 	
 	float rift = SampleRift(pos);
+	//float rift= 1f;
 	
 	float centerDst = length(pos.xz);
 	float rad1 = mix(0f, riftInnerRadius, riftPercentage);
 	float rad2 = mix(riftInnerRadius, riftRadius, riftPercentage);
-	float dstT = ((centerDst - rad1) / (rad2 - rad1));
+	//float dstT = ((centerDst - rad1) / (rad2 - rad1));
 	
-	rift -= dstT * 2f;
+	float dstSub = 0f;
+	
+	if (centerDst < rad1) {
+		float dstT = 1f - centerDst / rad1;
+		dstSub = dstT * riftInnerDepthSub;
+	} else {
+		float dstT = (centerDst - rad1) / (rad2 - rad1);
+		dstSub = dstT * riftOuterDepthSub;
+	}
+	
+	rift -= dstSub;
 	
 	rift -= 1f;
 	rift += riftPercentage * 1f;
@@ -145,11 +158,11 @@ vec4 SceneFog(vec3 p) {
 	n = mix(n, 1f, 1f - clamp(centerDst / riftFogRadius.x, 0f, 1f));
 	
 	float h = riftFogOffset + n * riftFogAmplitude;
-	h += clamp(centerDst / riftFogRadius.y, 0f, 1f) * 8f * riftPercentage;
+	h += clamp((centerDst - riftFogRadius.x) / (riftFogRadius.y - riftFogRadius.x), 0f, 1f) * 10f * riftPercentage;
 	float fogT = 1f;
 	
 	fogT *= 1f - clamp((p.y + riftDepth - h) / riftFogWidth, 0f, 1f);
-	f += riftFogColor * fogT * 64f * rT;
+	f += riftFogColor * fogT * 32f * rT;
 	
 	return f;
 }

@@ -2,11 +2,11 @@
 
 [ext_resource path="res://Shaders/DarkRiftVolumetrics.shader" type="Shader" id=1]
 
-[sub_resource type="OpenSimplexNoise" id=1]
+[sub_resource type="OpenSimplexNoise" id=3]
 
-[sub_resource type="NoiseTexture" id=2]
+[sub_resource type="NoiseTexture" id=4]
 seamless = true
-noise = SubResource( 1 )
+noise = SubResource( 3 )
 
 [resource]
 shader = ExtResource( 1 )
@@ -14,31 +14,33 @@ shader_param/displacementTiling = Vector2( 2, 2 )
 shader_param/displacementMotion = Vector2( 4, 4 )
 shader_param/displacementDepth = 4.0
 shader_param/displacementAmount = 0.0
-shader_param/riftRadius = 32.0
-shader_param/riftInnerRadius = 0.0
+shader_param/riftRadius = 80.0
+shader_param/riftInnerRadius = 22.0
+shader_param/riftInnerDepthSub = -2.0
+shader_param/riftOuterDepthSub = 4.0
 shader_param/riftDepth = 8.0
-shader_param/riftCrackTiling = Vector2( 32, 32 )
-shader_param/riftCrackWarpTiling = Vector2( 64, 64 )
-shader_param/riftCrackWarpAmount = 4.0
+shader_param/riftCrackTiling = Vector2( 64, 64 )
+shader_param/riftCrackWarpTiling = Vector2( 512, 512 )
+shader_param/riftCrackWarpAmount = 8.0
 shader_param/riftCrackOff = 0.5
-shader_param/riftCrackWidth = 0.1
-shader_param/riftPercentage = 0.0
+shader_param/riftCrackWidth = 0.2
+shader_param/riftPercentage = 1.0
 shader_param/brickTiling = Vector2( 8, 4 )
 shader_param/brickOffset = 4.0
 shader_param/brickRadius = 1.0
 shader_param/brickWidth = 1.0
 shader_param/brickDepth = 0.5
-shader_param/lightVolumetricPower = 128.0
-shader_param/lightVolumetricRange = 64.0
-shader_param/lightVolumetricTangent = 0.0
+shader_param/lightVolumetricPower = 4.0
+shader_param/lightVolumetricRange = 32.0
+shader_param/lightVolumetricTangent = 0.5
 shader_param/lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
-shader_param/riftFogOffset = -3.0
+shader_param/riftFogOffset = 0.215
 shader_param/riftFogMotion = Vector2( 8, -0.1 )
 shader_param/riftFogTiling = Vector2( 32, 0.5 )
-shader_param/riftFogAmplitude = 0.0
-shader_param/riftFogWidth = 8.0
-shader_param/riftFogColor = Color( 0.337255, 0, 1, 0.145098 )
-shader_param/riftFogRadius = Vector2( 16, 64 )
-shader_param/animationTime = 0.0
+shader_param/riftFogAmplitude = 8.0
+shader_param/riftFogWidth = 4.0
+shader_param/riftFogColor = Color( 0.407843, 0, 1, 1 )
+shader_param/riftFogRadius = Vector2( 22, 64 )
+shader_param/animationTime = 18.8646
 shader_param/timeScale = 0.0
-shader_param/riftCrackNoise = SubResource( 2 )
+shader_param/riftCrackNoise = SubResource( 4 )

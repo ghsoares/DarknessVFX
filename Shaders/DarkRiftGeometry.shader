@@ -1,9 +1,9 @@
 shader_type spatial;
 
 const float SURFACE_DST = .01;
-const int MAX_STEPS = 16;
+const int MAX_STEPS = 64;
 const float MAX_DISTANCE = 256f;
-const float NORMAL_EPSILON = .1f;
+const float NORMAL_EPSILON = .3f;
 
 uniform float lightSteps = 4f;
 uniform sampler2D lightGradient : hint_albedo;
@@ -15,6 +15,8 @@ uniform float displacementAmount = 2f;
 
 uniform float riftRadius = 16f;
 uniform float riftInnerRadius = 8f;
+uniform float riftInnerDepthSub = 1f;
+uniform float riftOuterDepthSub = 1f;
 uniform float riftDepth = 8f;
 uniform sampler2D riftCrackNoise : hint_albedo;
 uniform vec2 riftCrackTiling = vec2(32f);
@@ -87,13 +89,24 @@ float Scene(vec3 pos) {
 	pos.z += sz * displacementAmount * dT;
 	
 	float rift = SampleRift(pos);
+	//float rift= 1f;
 	
 	float centerDst = length(pos.xz);
 	float rad1 = mix(0f, riftInnerRadius, riftPercentage);
 	float rad2 = mix(riftInnerRadius, riftRadius, riftPercentage);
-	float dstT = ((centerDst - rad1) / (rad2 - rad1));
+	//float dstT = ((centerDst - rad1) / (rad2 - rad1));
 	
-	rift -= dstT * 2f;
+	float dstSub = 0f;
+	
+	if (centerDst < rad1) {
+		float dstT = 1f - centerDst / rad1;
+		dstSub = dstT * riftInnerDepthSub;
+	} else {
+		float dstT = (centerDst - rad1) / (rad2 - rad1);
+		dstSub = dstT * riftOuterDepthSub;
+	}
+	
+	rift -= dstSub;
 	
 	rift -= 1f;
 	rift += riftPercentage * 1f;
@@ -102,8 +115,9 @@ float Scene(vec3 pos) {
 	rift = clamp(rift, 0f, 1f);
 	float h = mix(0f, -riftDepth, rift) + SampleBrick(pos);
 	
-	float breakT = clamp(1f - abs(riftN) / 1f, 0f, 1f);
-	h += breakT * .25f * riftPercentage; 
+	float breakT = clamp(1f - abs(riftN) / 2f, 0f, 1f);
+	breakT = pow(breakT, 4f);
+	h += breakT * 1f * riftPercentage; 
 	
 	//float h = SampleBrick(pos);
 	return pos.y - h;
@@ -122,11 +136,12 @@ vec3 Normal(vec3 pos) {
 float RayMarch(vec3 ro, vec3 rd) {
 	float d = 0f;
 	//float st = riftDepth / float(MAX_STEPS);
+	float prevDst = Scene(ro + rd * d);
 	for (int i = 0; i < MAX_STEPS; i++) {
 		vec3 pos = ro + rd * d;
 		float sceneDst = Scene(pos);
 		
-		float dstAdd = sceneDst > 0f ? sceneDst * .1f : sceneDst * .1f;
+		float dstAdd = sceneDst > 0f ? sceneDst * .2f : sceneDst * .1f;
 		d += dstAdd;
 		pos += rd * dstAdd;
 		

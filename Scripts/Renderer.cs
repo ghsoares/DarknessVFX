@@ -7,6 +7,7 @@ public class Renderer : Control
     AnimationPlayer anim;
     Viewport view;
     float time;
+    float start;
     float elapsed;
     float animDuration;
     int frame;
@@ -17,6 +18,7 @@ public class Renderer : Control
     [Export] public string animName = "Anim";
     [Export] public String outputPath = "res://Frames/";
     [Export] public String frameName = "Frame_{frameIdx}.png";
+    [Export] public bool disableRecording;
 
     public override void _Ready()
     {
@@ -30,6 +32,7 @@ public class Renderer : Control
         animDuration = anim.CurrentAnimationLength;
 
         frame = 0;
+        start = OS.GetTicksMsec();
 
         outputPath = outputPath.Replace("\\", "/");
         if (!outputPath.EndsWith("/")) outputPath += "/";
@@ -37,11 +40,13 @@ public class Renderer : Control
 
     public override async void _Process(float delta)
     {
+        if (disableRecording) return;
+
         await ToSignal(GetTree(), "idle_frame");
         TakeShot();
 
-        time += 1f / fps;
-        elapsed += delta;
+        time += (1f / fps) * anim.PlaybackSpeed;
+        elapsed = (OS.GetTicksMsec() - start) / 1000f;
 
         anim.Advance(1f / fps);
 

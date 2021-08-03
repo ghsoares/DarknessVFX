@@ -24,6 +24,10 @@ public class Scene : Spatial
     [Export]
     public float riftInnerRadius = 8f;
     [Export]
+    public float riftInnerDepthSub = 16f;
+    [Export]
+    public float riftOuterDepthSub = 8f;
+    [Export]
     public float riftDepth = 8f;
     [Export]
     public Texture riftCrackNoise;
@@ -107,6 +111,8 @@ public class Scene : Spatial
 
         SetShaderParam("riftRadius", riftRadius);
         SetShaderParam("riftInnerRadius", riftInnerRadius);
+        SetShaderParam("riftInnerDepthSub", riftInnerDepthSub);
+        SetShaderParam("riftOuterDepthSub", riftOuterDepthSub);
         SetShaderParam("riftDepth", riftDepth);
         SetShaderParam("riftCrackNoise", riftCrackNoise);
         SetShaderParam("riftCrackTiling", riftCrackTiling);
