@@ -1,0 +1,8 @@
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\bin\Debug\DarknessVFX.dll
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\bin\Debug\DarknessVFX.pdb
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.csprojAssemblyReference.cache
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.AssemblyInfoInputs.cache
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.AssemblyInfo.cs
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.dll
+C:\Users\Administrator\Documents\Godot\DarknessVFX\.mono\temp\obj\Debug\DarknessVFX.pdb

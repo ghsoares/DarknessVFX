@@ -1,301 +1,252 @@
 [gd_scene load_steps=13 format=2]
 
-[ext_resource path="res://icon.png" type="Texture" id=1]
-[ext_resource path="res://Materials/DarkRift.tres" type="Material" id=2]
+[ext_resource path="res://Materials/DarkRiftGeometry.tres" type="Material" id=1]
+[ext_resource path="res://Materials/DarkRiftVolumetrics.tres" type="Material" id=2]
+[ext_resource path="res://Scripts/Scene.cs" type="Script" id=3]
 
-[sub_resource type="Shader" id=1]
-code = "shader_type spatial;
-render_mode unshaded;
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0.444444, 1 )
+colors = PoolColorArray( 0.135742, 0.0402985, 0.0911894, 1, 0.824219, 0.908333, 1, 1 )
 
-const int MAX_STEPS = 128;
-const float MAX_DISTANCE = 999.0;
-const float SURFACE_DISTANCE = 0.005;
-const float NORMAL_PRECISION = 1f;
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
 
-uniform sampler2D noiseTex;
-uniform vec2 tiling = vec2(64.0);
-uniform vec2 warpTiling = vec2(256.0);
-uniform float warpAmount = 32.0;
+[sub_resource type="OpenSimplexNoise" id=3]
 
-uniform float riftDepth = 512.0;
-uniform float riftRadius = 32f;
-uniform float riftPerc : hint_range(0.0, 1.0) = 1.0;
-
-uniform float riftCrackOff = .5f;
-uniform float riftCrackWidth = .1f;
-uniform float lightSteps = 8.0;
-uniform vec3 sunDir = vec3(1.0, -1.0, 1.0);
-uniform sampler2D lightGrad;
-
-uniform sampler2D groundTexture;
-uniform vec2 groundTiling = vec2(256, 256);
-uniform vec4 groundColor : hint_color;
-uniform vec4 riftColor : hint_color;
-uniform vec4 riftEmission : hint_color;
-uniform float riftBottomPower = 2.0f;
-
-void vertex() {
-	POSITION = vec4(VERTEX, 1f);
-}
-
-float EaseInOutCirc(float x) {
-return x < 0.5
-  ? (1f - sqrt(1f - pow(2f * x, 2f))) / 2f
-  : (sqrt(1f - pow(-2f * x + 2f, 2f)) + 1f) / 2f;
-}
-
-float SampleNoise(vec3 pos) {
-	vec2 warpUv = pos.xz / warpTiling;
-	
-	float n = (texture(noiseTex, warpUv).r * 2f - 1f) * 3.1415;
-	vec2 warp = vec2(cos(n), sin(n)) * warpAmount;
-	
-	vec2 uv = (pos.xz + warp) / tiling;
-	n = texture(noiseTex, uv).r;
-	
-	return n;
-}
-
-float SampleRift(vec3 pos) {
-	float n = SampleNoise(pos);
-	vec2 riftPos = vec2(0.0);
-	float riftSqrDst = pow(riftPos.x - pos.x, 2.0) + pow(riftPos.y - pos.z, 2.0);
-	float riftRad = riftRadius * riftRadius;
-	
-	float riftT = riftSqrDst / riftRad;
-	riftT -= clamp(1.0 - riftT, 0.0, 1.0) * riftPerc * .5f;
-	
-	float crack = 1.0 - abs(n - riftCrackOff) / riftCrackWidth;
-	n = mix(n, crack, clamp(riftT * 2f, 0.0, 1.0));
-	n -= riftT;
-	n -= 1.0;
-	n += riftPerc;
-	
-	n = clamp(n * 2.0, 0.0, 1.0);
-	float disp = mix(0.0, riftDepth, n);
-	
-	return disp;
-}
-
-void SampleDistance(vec3 pos, out vec3 rgb, out float dst, out vec3 emissive) {
-	rgb = texture(groundTexture, pos.xz / groundTiling).rgb * groundColor.rgb;
-	dst = MAX_DISTANCE;
-	emissive = vec3(0.0);
-	
-	/*vec3 spPos = vec3(0.0, riftPerc * 64.0 - 64.0, 0.0);
-	float spRadius = 16.0;
-	dst = length(pos - spPos) - spRadius;*/
-	
-	float disp = SampleRift(pos);
-	
-	float planeDst = pos.y + disp;
-	dst = min(dst, planeDst);
-	
-	if (disp > 0.0){
-		rgb = riftColor.rgb;
-		//emissive = riftEmission.rgb;
-	} 
-	float dispT = -pos.y - riftDepth;
-	dispT = 1.0 - clamp(-dispT / 8f, 0.0, 1.0);
-	emissive = riftEmission.rgb * dispT * riftBottomPower;
-}
-
-float SampleDistanceSimple(vec3 pos) {
-	float disp = SampleRift(pos);
-	
-	float planeDst = pos.y + disp;
-	float dst = planeDst;
-	
-	return dst;
-}
-
-vec3 GetNormal(vec3 p) {
-	float d = SampleDistanceSimple(p);
-	vec2 e = vec2(NORMAL_PRECISION, 0.0);
-	vec3 n = d - vec3(
-		SampleDistanceSimple(p - e.xyy),
-		SampleDistanceSimple(p - e.yxy),
-		SampleDistanceSimple(p - e.yyx)
-	);
-	return normalize(n);
-}
-
-void Raymarch(vec3 origin, vec3 dir, out vec3 hitPos, out float d, out vec3 normal, out vec3 rgb, out vec3 emissive) {
-	d = 0.0;
-	rgb = vec3(0.0);
-	emissive = vec3(0.0);
-	for (int i = 0; i < MAX_STEPS; ++i) {
-		vec3 p = origin + dir * d;
-		//vec4 scene = SampleDistance(p);
-		vec3 sceneRgb;
-		float sceneDst;
-		vec3 sceneEmissive;
-		SampleDistance(p, sceneRgb, sceneDst, sceneEmissive);
-		rgb = sceneRgb;
-		emissive = sceneEmissive;
-		d += (sceneDst < 0.0 ? sceneDst * .2f : sceneDst * .2f);
-		if (d > MAX_DISTANCE || sceneDst < SURFACE_DISTANCE) {
-			break;
-		}
-	}
-
-	hitPos = origin + dir * d;
-	normal = GetNormal(hitPos);
-}
-
-void fragment() {
-	// REGION Gets ray dir from camera, grabbed from here: https://github.com/Zylann/godot_sdf_blender/blob/master/addons/zylann.sdf_blender/raymarch.shader
-	vec3 ndc = vec3(SCREEN_UV, 0.0) * 2.0 - 1.0;
-	vec4 view_coords = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
-	view_coords.xyz /= view_coords.w;
-	vec3 world_cam_pos = (CAMERA_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec4 world_coords = CAMERA_MATRIX * vec4(view_coords.xyz, 1.0);
-	
-	vec3 ray_origin = world_coords.xyz;
-	vec3 ray_dir = normalize(world_coords.xyz - world_cam_pos);
-	// ENDREGION
-	
-	vec3 hitPos;
-	float hitDst;
-	vec3 hitNormal;
-	vec3 rgb;
-	vec3 emissive;
-	
-	Raymarch(ray_origin, ray_dir, hitPos, hitDst, hitNormal, rgb, emissive);
-	if (hitDst >= MAX_DISTANCE) discard;
-	
-	float dt = dot(hitNormal, -normalize(sunDir)) * .5f + .5f;
-	dt = floor(dt * lightSteps) / (lightSteps - 1.0);
-	vec3 alb = rgb * texture(lightGrad, vec2(dt)).rgb;
-	alb += emissive;
-	
-	ALBEDO = alb;
-	DEPTH = hitDst / MAX_DISTANCE;
-}
-
-
-
-
-"
-
-[sub_resource type="Gradient" id=2]
-offsets = PoolRealArray( 0.455399, 1 )
-colors = PoolColorArray( 0.441406, 0.441406, 0.441406, 1, 1, 1, 1, 1 )
-
-[sub_resource type="GradientTexture" id=3]
-gradient = SubResource( 2 )
-
-[sub_resource type="OpenSimplexNoise" id=4]
-
-[sub_resource type="NoiseTexture" id=5]
+[sub_resource type="NoiseTexture" id=4]
 seamless = true
-noise = SubResource( 4 )
+noise = SubResource( 3 )
 
-[sub_resource type="ShaderMaterial" id=6]
-shader = SubResource( 1 )
-shader_param/tiling = Vector2( 256, 256 )
-shader_param/warpTiling = Vector2( 512, 512 )
-shader_param/warpAmount = 16.0
-shader_param/riftDepth = 32.0
-shader_param/riftRadius = 128.0
-shader_param/riftPerc = 1.0
-shader_param/riftCrackOff = 0.465
-shader_param/riftCrackWidth = 0.2
-shader_param/lightSteps = 32.0
-shader_param/sunDir = Vector3( 1, -1, 1 )
-shader_param/groundTiling = Vector2( 64, 64 )
-shader_param/groundColor = Color( 0.454902, 0.454902, 0.454902, 1 )
-shader_param/riftColor = Color( 0.207843, 0, 0.180392, 1 )
-shader_param/riftEmission = Color( 0.494118, 0, 0.239216, 1 )
-shader_param/riftBottomPower = 2.0
-shader_param/noiseTex = SubResource( 5 )
-shader_param/lightGrad = SubResource( 3 )
-shader_param/groundTexture = ExtResource( 1 )
+[sub_resource type="SpatialMaterial" id=9]
+albedo_color = Color( 0.207843, 0.207843, 0.207843, 1 )
+
+[sub_resource type="SphereMesh" id=6]
+material = SubResource( 9 )
+radius = 4.0
+height = 8.0
+
+[sub_resource type="PlaneMesh" id=5]
+size = Vector2( 300, 300 )
 
 [sub_resource type="QuadMesh" id=7]
 size = Vector2( 2, 2 )
 
-[sub_resource type="PlaneMesh" id=8]
-size = Vector2( 64, 64 )
-
-[sub_resource type="SphereMesh" id=9]
-radius = 8.0
-height = 16.0
-
-[sub_resource type="Animation" id=10]
-length = 8.0
+[sub_resource type="Animation" id=8]
+length = 30.0
+loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("Parallax:material_override:shader_param/riftInnerRadius")
+tracks/0/path = NodePath(".:riftInnerRadius")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 3, 3.8, 8 ),
-"transitions": PoolRealArray( 0.5, 0.5, 0.5, -2 ),
+"times": PoolRealArray( 0, 3, 3.4, 9, 26 ),
+"transitions": PoolRealArray( 0.5, 0.5, -2, -2, -2 ),
 "update": 0,
-"values": [ 0.0, 0.0, 0.0, 10.0 ]
+"values": [ 0.0, 0.0, 0.0, 16.0, 16.0 ]
 }
 tracks/1/type = "value"
-tracks/1/path = NodePath("Parallax:material_override:shader_param/riftRadius")
+tracks/1/path = NodePath(".:riftRadius")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0, 3 ),
-"transitions": PoolRealArray( 0.5, 0.5 ),
+"times": PoolRealArray( 0, 26 ),
+"transitions": PoolRealArray( 0.5, -2 ),
 "update": 0,
 "values": [ 32.0, 32.0 ]
 }
 tracks/2/type = "value"
-tracks/2/path = NodePath("Parallax:material_override:shader_param/riftPercentage")
+tracks/2/path = NodePath(".:riftPercentage")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/imported = false
 tracks/2/enabled = true
 tracks/2/keys = {
-"times": PoolRealArray( 0, 3, 5.5, 8 ),
-"transitions": PoolRealArray( 0.5, 0.5, 1, -2 ),
+"times": PoolRealArray( 0, 3, 5.5, 9, 26 ),
+"transitions": PoolRealArray( 0.5, 0.5, 1, -2, -2 ),
 "update": 0,
-"values": [ 0.0, 0.0, 1.0, 1.0 ]
+"values": [ 0.0, 0.0, 1.0, 1.0, 1.0 ]
 }
 tracks/3/type = "value"
-tracks/3/path = NodePath("Parallax:material_override:shader_param/riftFogAmplitude")
+tracks/3/path = NodePath(".:riftFogAmplitude")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/keys = {
-"times": PoolRealArray( 0, 3, 5.5 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
+"times": PoolRealArray( 0, 3, 5.5, 26 ),
+"transitions": PoolRealArray( 1, -2, 1, -2 ),
 "update": 0,
-"values": [ 0.0, 0.0, 3.0 ]
+"values": [ 0.0, 0.0, 8.0, 8.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath(".:lightOff")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 5.5, 9, 26 ),
+"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"update": 0,
+"values": [ Vector3( 0, -8, 0 ), Vector3( 0, -8, 0 ), Vector3( 0, 4, 0 ), Vector3( 0, 4, 0 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath(".:animationTime")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 30 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, 30.0 ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath(".:lightVolumetricTangent")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0, 4.5, 9, 26 ),
+"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"update": 0,
+"values": [ 0.0, 0.0, 0.5, 0.5 ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath(".:lightVolumetricPower")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0, 4.5, 5.5, 9, 26 ),
+"transitions": PoolRealArray( 1, -2, -2, 1, -2 ),
+"update": 0,
+"values": [ 128.0, 128.0, 24.0, 4.0, 4.0 ]
+}
+tracks/8/type = "bezier"
+tracks/8/path = NodePath("Pivot:rotation_degrees:x")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/keys = {
+"points": PoolRealArray( -45, -0.25, 0, 2, 0, -70, -2, 0, 4, 0, -45, -3, 0, 0.25, 0 ),
+"times": PoolRealArray( 4, 20, 26 )
+}
+tracks/9/type = "bezier"
+tracks/9/path = NodePath("Pivot:rotation_degrees:y")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/keys = {
+"points": PoolRealArray( 45, -0.25, 0, 8, 0, 405, -8, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 30 )
+}
+tracks/10/type = "bezier"
+tracks/10/path = NodePath("Pivot:rotation_degrees:z")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/keys = {
+"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 30 )
+}
+tracks/11/type = "value"
+tracks/11/path = NodePath("Pivot/Camera:translation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/keys = {
+"times": PoolRealArray( 0, 4, 8, 11 ),
+"transitions": PoolRealArray( 1, -2, -2, -2 ),
+"update": 0,
+"values": [ Vector3( 0, 0, 32 ), Vector3( 0, 0, 32 ), Vector3( 0, 0, 48 ), Vector3( 0, 0, 48 ) ]
+}
+tracks/12/type = "value"
+tracks/12/path = NodePath(".:lightVolumetricRange")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/keys = {
+"times": PoolRealArray( 0, 5.5, 9, 26 ),
+"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"update": 0,
+"values": [ 64.0, 64.0, 32.0, 32.0 ]
 }
 
 [node name="Scene" type="Spatial"]
+script = ExtResource( 3 )
+lightSteps = 8.0
+riftFogMotion = Vector2( 8, 8 )
+lightGradient = SubResource( 2 )
+riftPercentage = 0.9216
+lightVolumetricTangent = 0.00444445
+riftCrackNoise = SubResource( 4 )
+brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
+riftRadius = 32.0
+lightVolumetricPower = 109.28
+brickTexScale = Vector2( 2, 2 )
+brickTiling = Vector2( 8, 4 )
+riftFogColor = Color( 0.545098, 0, 1, 1 )
+brickOffset = 4.0
+brickDepth = 0.5
+timeScale = 0.0
+riftFogTiling = Vector2( 128, 128 )
+riftFogAmplitude = 6.7456
+riftFogWidth = 5.0
+animationTime = 4.8
+lightVolumetricRange = 64.0
+riftInnerRadius = 2.0
+lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
+brickWidth = 1.0
+displacementMotion = Vector2( 4, 4 )
+displacementTiling = Vector2( 2, 2 )
+displacementDepth = 4.0
+displacementAmount = 0.0
+lightRange = 64.0
+lightOff = Vector3( 0, -8, 0 )
+materialsToUpdate = [ ExtResource( 1 ), ExtResource( 2 ) ]
 
-[node name="RayMarch" type="MeshInstance" parent="."]
-visible = false
-material_override = SubResource( 6 )
-extra_cull_margin = 9999.0
-mesh = SubResource( 7 )
+[node name="Sphere" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.76324, 0 )
+mesh = SubResource( 6 )
 material/0 = null
 
 [node name="Parallax" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0 )
-material_override = ExtResource( 2 )
-mesh = SubResource( 8 )
+material_override = ExtResource( 1 )
+mesh = SubResource( 5 )
 material/0 = null
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
-mesh = SubResource( 9 )
-material/0 = null
-
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 0.735724, 0.274982, -0.618947, 0, 0.913869, 0.406009, 0.677282, -0.29871, 0.672355, -12.0351, 6.62905, 13.0033 )
+[node name="Volumetric" type="MeshInstance" parent="."]
 visible = false
+material_override = ExtResource( 2 )
+mesh = SubResource( 7 )
+material/0 = null
+
+[node name="Pivot" type="Spatial" parent="."]
+transform = Transform( 0.25152, -0.691585, 0.677088, 0, 0.699577, 0.714557, -0.967852, -0.179725, 0.175958, 0, 0, 0 )
+
+[node name="Camera" type="Camera" parent="Pivot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 33.28 )
 current = true
+size = 64.0
+far = 200.0
 
 [node name="Anim" type="AnimationPlayer" parent="."]
-anims/RiftAppear = SubResource( 10 )
+playback_process_mode = 0
+anims/RiftAppear = SubResource( 8 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.637558, 0.770402, 0, -0.770402, 0.637558, 0, 0, 0 )

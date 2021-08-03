@@ -1,21 +1,17 @@
 shader_type spatial;
-render_mode unshaded;
 
 const float SURFACE_DST = .01;
-const int MAX_STEPS = 64;
+const int MAX_STEPS = 16;
 const float MAX_DISTANCE = 256f;
 const float NORMAL_EPSILON = .1f;
 
-const int LIGHT_STEPS = 100;
+uniform float lightSteps = 4f;
+uniform sampler2D lightGradient : hint_albedo;
 
 uniform vec2 displacementTiling = vec2(8f);
 uniform vec2 displacementMotion = vec2(8f);
 uniform float displacementDepth = 1f;
 uniform float displacementAmount = 2f;
-
-uniform vec3 sunDir = vec3(1f, -1f, 1f);
-uniform float lightSteps = 2f;
-uniform sampler2D lightGradient : hint_albedo;
 
 uniform float riftRadius = 16f;
 uniform float riftInnerRadius = 8f;
@@ -30,12 +26,6 @@ uniform float riftCrackWidth = .1f;
 
 uniform float riftPercentage : hint_range(0f, 1f) = .5f;
 
-uniform vec2 riftFogMotion = vec2(32f);
-uniform vec2 riftFogTiling = vec2(4f);
-uniform float riftFogAmplitude = 1f;
-uniform float riftFogWidth = .1f;
-uniform vec4 riftFogColor : hint_color = vec4(1f);
-
 uniform sampler2D brickTex : hint_albedo;
 uniform vec2 brickTexScale = vec2(1f);
 uniform vec4 brickColor : hint_color = vec4(1f);
@@ -46,25 +36,12 @@ uniform float brickRadius = 1f;
 uniform float brickWidth = .1f;
 uniform float brickDepth = .25f;
 
-uniform float zNear = .05f;
-uniform float zFar = 500f;
-
-uniform vec3 lightOff = vec3(0f, 32f, 0f);
-uniform vec4 lightColor : hint_color = vec4(1f);
-uniform float lightPower = 1f;
-uniform float lightRange = 32f;
-uniform float lightVolumetricPower = 1f;
-uniform float lightVolumetricRange = 1f;
-uniform float lightVolumetricTangent = 1f;
-
 uniform float animationTime = 0f;
 uniform float timeScale = 1f;
 
-varying mat4 mv;
 varying float time;
 
 void vertex() {
-	mv = MODELVIEW_MATRIX;
 	time = animationTime + TIME * timeScale;
 }
 
@@ -128,38 +105,8 @@ float Scene(vec3 pos) {
 	float breakT = clamp(1f - abs(riftN) / 1f, 0f, 1f);
 	h += breakT * .25f * riftPercentage; 
 	
+	//float h = SampleBrick(pos);
 	return pos.y - h;
-}
-
-vec3 SceneLight(vec3 pos) {
-	pos.xz /= 1f + clamp(pos.y / lightVolumetricRange, 0f, 1f) * lightVolumetricTangent;
-	
-	vec3 l = vec3(0f);
-	
-	float rift = SampleRift(pos);
-	
-	float centerDst = length(pos.xz);
-	float rad1 = mix(0f, riftInnerRadius, riftPercentage);
-	float rad2 = mix(riftInnerRadius, riftRadius, riftPercentage);
-	float dstT = ((centerDst - rad1) / (rad2 - rad1));
-	
-	rift -= dstT * 2f;
-	
-	rift -= 1f;
-	rift += riftPercentage * 1f;
-	
-	float riftN = rift;
-	rift = clamp(rift, 0f, 1f);
-	
-	float lightT = rift * clamp(1f - pos.y / lightVolumetricRange, 0f, 1f);
-	
-	float s = texture(riftCrackNoise, (pos.xz + time * vec2(8f)) / 64f).r;
-	s = s < .5f ? (1f - sqrt(1f - pow(2f * s, 2f))) / 2f : (sqrt(1f - pow(-2f * s + 2f, 2f)) + 1f) / 2f;
-	
-	lightT *= s;
-	l += lightColor.xyz * lightT * lightVolumetricPower;
-	
-	return l;
 }
 
 vec3 Normal(vec3 pos) {
@@ -174,6 +121,7 @@ vec3 Normal(vec3 pos) {
 
 float RayMarch(vec3 ro, vec3 rd) {
 	float d = 0f;
+	//float st = riftDepth / float(MAX_STEPS);
 	for (int i = 0; i < MAX_STEPS; i++) {
 		vec3 pos = ro + rd * d;
 		float sceneDst = Scene(pos);
@@ -185,43 +133,6 @@ float RayMarch(vec3 ro, vec3 rd) {
 		if (d > MAX_DISTANCE || abs(sceneDst) <= SURFACE_DST) break;
 	}
 	return d;
-}
-
-float Fog(vec3 pos) {
-	float riftN = 0f;
-	
-	int iterations = 3;
-	for (int i = 0; i < iterations; i++) {
-		float t = float(i) / float(iterations - 1);
-		vec2 motion = mix(riftFogMotion * -.5f, riftFogMotion * 1f, t);
-		riftN += texture(riftCrackNoise, (pos.xz + time * motion) / riftFogTiling).r;
-	}
-	riftN /= float(iterations);
-	
-	float riftF = riftN * riftFogAmplitude;
-	riftF = riftDepth - riftF;
-	
-	float riftT = 1f - clamp((pos.y + riftF) / riftFogWidth, 0f, 1f);
-	riftT = pow(riftT, 2f);
-	
-	return riftT;
-}
-
-vec3 Light(vec3 from, vec3 to) {
-	vec3 l = vec3(0f);
-	
-	float spacing = 1f / float(LIGHT_STEPS);
-	
-	for (int i = 0; i < LIGHT_STEPS; i++) {
-		float t = float(i) * spacing;
-		vec3 p = from * (1f - t) + to * t;
-		
-		l += SceneLight(p);
-	}
-	
-	l /= float(LIGHT_STEPS);
-	
-	return l;
 }
 
 void fragment() {
@@ -241,35 +152,23 @@ void fragment() {
 		discard;
 	}
 	
-	float light = dot(worldNormal, -normalize(sunDir)) * .5f + .5f;
-	light = floor(light * lightSteps) / (lightSteps - 1f);
-	vec3 lightC = texture(lightGradient, vec2(light)).rgb;
-	
 	vec2 gridIdx = floor(world.xz / brickTiling);
 	vec2 grid = fract((world.xz + vec2(gridIdx.y * brickOffset, 0f)) / brickTiling);
 	
 	vec3 col = texture(brickTex, grid * brickTexScale).rgb * brickColor.rgb;
-	col *= lightC;
-	
-	vec3 lightO = (world - lightOff);
-	vec3 lightDir = normalize(lightO);
-	light = dot(worldNormal, -lightDir) * .5f + .5f;
-	light *= clamp(1f - length(lightO / lightRange), 0f, 1f) * lightPower;
-	light = floor(light * lightSteps) / (lightSteps - 1f);
-	lightC = texture(lightGradient, vec2(light)).rgb * lightColor.rgb;
-	
-	col += lightC;
-	
-	float riftT = Fog(world);
-	col = mix(col, riftFogColor.rgb, riftT);
-	
-	col += Light(camera, world);
 	
 	vec4 ndc = PROJECTION_MATRIX * INV_CAMERA_MATRIX * vec4(world, 1f);
 	float writeDepth = (ndc.z / ndc.w) * .5f + .5f;
 	
+	NORMAL = (INV_CAMERA_MATRIX * vec4(worldNormal, 0f)).xyz;
 	ALBEDO = col;
 	DEPTH = writeDepth;
 }
 
-
+void light() {
+	float light = dot(NORMAL, LIGHT) * .5f + .5f;
+	light = floor(light * lightSteps) / (lightSteps - 1f);
+	
+	DIFFUSE_LIGHT = ALBEDO * texture(lightGradient, vec2(light)).rgb;
+	SPECULAR_LIGHT = vec3(0f);
+}

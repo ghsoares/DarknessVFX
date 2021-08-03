@@ -1,0 +1,44 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=2]
+
+[ext_resource path="res://Shaders/DarkRiftGeometry.shader" type="Shader" id=1]
+
+[sub_resource type="Gradient" id=3]
+offsets = PoolRealArray( 0.444444, 1 )
+colors = PoolColorArray( 0.135742, 0.0402985, 0.0911894, 1, 0.824219, 0.908333, 1, 1 )
+
+[sub_resource type="GradientTexture" id=4]
+gradient = SubResource( 3 )
+
+[sub_resource type="OpenSimplexNoise" id=1]
+
+[sub_resource type="NoiseTexture" id=2]
+seamless = true
+noise = SubResource( 1 )
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/lightSteps = 8.0
+shader_param/displacementTiling = Vector2( 2, 2 )
+shader_param/displacementMotion = Vector2( 4, 4 )
+shader_param/displacementDepth = 4.0
+shader_param/displacementAmount = 0.0
+shader_param/riftRadius = 32.0
+shader_param/riftInnerRadius = 16.0
+shader_param/riftDepth = 8.0
+shader_param/riftCrackTiling = Vector2( 32, 32 )
+shader_param/riftCrackWarpTiling = Vector2( 64, 64 )
+shader_param/riftCrackWarpAmount = 4.0
+shader_param/riftCrackOff = 0.5
+shader_param/riftCrackWidth = 0.1
+shader_param/riftPercentage = 1.0
+shader_param/brickTexScale = Vector2( 2, 2 )
+shader_param/brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
+shader_param/brickTiling = Vector2( 8, 4 )
+shader_param/brickOffset = 4.0
+shader_param/brickRadius = 1.0
+shader_param/brickWidth = 1.0
+shader_param/brickDepth = 0.5
+shader_param/animationTime = 25.8867
+shader_param/timeScale = 1.0
+shader_param/lightGradient = SubResource( 4 )
+shader_param/riftCrackNoise = SubResource( 2 )
