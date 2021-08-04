@@ -41,6 +41,6 @@ shader_param/riftFogAmplitude = 8.0
 shader_param/riftFogWidth = 4.0
 shader_param/riftFogColor = Color( 0.407843, 0, 1, 1 )
 shader_param/riftFogRadius = Vector2( 22, 64 )
-shader_param/animationTime = 18.8646
+shader_param/animationTime = 9.96639
 shader_param/timeScale = 0.0
 shader_param/riftCrackNoise = SubResource( 4 )

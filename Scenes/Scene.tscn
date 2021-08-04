@@ -486,7 +486,7 @@ tracks/5/keys = {
 }
 
 [sub_resource type="Animation" id=30]
-length = 30.0
+length = 30.5
 loop = true
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:riftInnerRadius")
@@ -495,10 +495,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 3, 3.4, 9, 27 ),
-"transitions": PoolRealArray( 0.5, 0.5, -2, -2, -2 ),
+"times": PoolRealArray( 0, 3, 3.4, 9, 27, 30 ),
+"transitions": PoolRealArray( 0.5, 0.5, -2, -2, -2, 0.5 ),
 "update": 0,
-"values": [ 0.0, 0.0, 0.0, 22.0, 22.0 ]
+"values": [ 0.0, 0.0, 0.0, 22.0, 22.0, 0.0 ]
 }
 tracks/1/type = "value"
 tracks/1/path = NodePath(".:riftPercentage")
@@ -507,10 +507,10 @@ tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0, 3, 5.5, 9, 27 ),
-"transitions": PoolRealArray( 0.5, 0.5, 1, -2, -2 ),
+"times": PoolRealArray( 0, 3, 5.5, 9, 27, 30 ),
+"transitions": PoolRealArray( 0.5, 0.5, 1, -2, -2, 0.5 ),
 "update": 0,
-"values": [ 0.0, 0.0, 1.0, 1.0, 1.0 ]
+"values": [ 0.0, 0.0, 1.0, 1.0, 1.0, 0.0 ]
 }
 tracks/2/type = "value"
 tracks/2/path = NodePath(".:riftFogAmplitude")
@@ -519,10 +519,10 @@ tracks/2/loop_wrap = true
 tracks/2/imported = false
 tracks/2/enabled = true
 tracks/2/keys = {
-"times": PoolRealArray( 0, 3, 5.5, 27 ),
-"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"times": PoolRealArray( 0, 3, 5.5, 27, 30 ),
+"transitions": PoolRealArray( 1, -2, 1, -2, 1 ),
 "update": 0,
-"values": [ 0.0, 0.0, 8.0, 8.0 ]
+"values": [ 0.0, 0.0, 8.0, 8.0, 0.0 ]
 }
 tracks/3/type = "value"
 tracks/3/path = NodePath(".:lightOff")
@@ -531,10 +531,10 @@ tracks/3/loop_wrap = true
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/keys = {
-"times": PoolRealArray( 0, 5.5, 9, 27 ),
-"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"times": PoolRealArray( 0, 5.5, 9, 27, 30 ),
+"transitions": PoolRealArray( 1, -2, 1, -2, 1 ),
 "update": 0,
-"values": [ Vector3( 0, -8, 0 ), Vector3( 0, -8, 0 ), Vector3( 0, 4, 0 ), Vector3( 0, 4, 0 ) ]
+"values": [ Vector3( 0, -8, 0 ), Vector3( 0, -8, 0 ), Vector3( 0, 4, 0 ), Vector3( 0, 4, 0 ), Vector3( 0, -8, 0 ) ]
 }
 tracks/4/type = "value"
 tracks/4/path = NodePath(".:animationTime")
@@ -555,10 +555,10 @@ tracks/5/loop_wrap = true
 tracks/5/imported = false
 tracks/5/enabled = true
 tracks/5/keys = {
-"times": PoolRealArray( 0, 4.5, 9, 27 ),
-"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"times": PoolRealArray( 0, 4.5, 9, 27, 30 ),
+"transitions": PoolRealArray( 1, -2, 1, -2, 1 ),
 "update": 0,
-"values": [ 0.0, 0.0, 0.5, 0.5 ]
+"values": [ 0.0, 0.0, 0.5, 0.5, 0.0 ]
 }
 tracks/6/type = "value"
 tracks/6/path = NodePath(".:lightVolumetricPower")
@@ -567,10 +567,10 @@ tracks/6/loop_wrap = true
 tracks/6/imported = false
 tracks/6/enabled = true
 tracks/6/keys = {
-"times": PoolRealArray( 0, 4.5, 5.5, 9, 27 ),
-"transitions": PoolRealArray( 1, -2, -2, 1, -2 ),
+"times": PoolRealArray( 0, 4.5, 5.5, 9, 27, 30 ),
+"transitions": PoolRealArray( 1, -2, -2, 1, -2, 1 ),
 "update": 0,
-"values": [ 128.0, 128.0, 24.0, 4.0, 4.0 ]
+"values": [ 128.0, 128.0, 24.0, 4.0, 4.0, 128.0 ]
 }
 tracks/7/type = "bezier"
 tracks/7/path = NodePath("Pivot:rotation_degrees:x")
@@ -579,8 +579,8 @@ tracks/7/loop_wrap = true
 tracks/7/imported = false
 tracks/7/enabled = true
 tracks/7/keys = {
-"points": PoolRealArray( -45, -0.25, 0, 2, 0, -70, -2, 0, 4, 0, -45, -3, 0, 0.25, 0 ),
-"times": PoolRealArray( 4, 20, 26 )
+"points": PoolRealArray( -45, -0.25, 0, 2, 0, -45, -0.25, 0, 2, 0, -70, -2, 0, 4, 0, -45, -3, 0, 0.25, 0, -45, -3, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 4, 20, 26, 30 )
 }
 tracks/8/type = "bezier"
 tracks/8/path = NodePath("Pivot:rotation_degrees:y")
@@ -609,10 +609,10 @@ tracks/10/loop_wrap = true
 tracks/10/imported = false
 tracks/10/enabled = true
 tracks/10/keys = {
-"times": PoolRealArray( 0, 4, 8, 11 ),
-"transitions": PoolRealArray( 1, -2, -2, -2 ),
+"times": PoolRealArray( 0, 4, 8, 11, 30 ),
+"transitions": PoolRealArray( 1, -2, -2, -2, 1 ),
 "update": 0,
-"values": [ Vector3( 0, 0, 32 ), Vector3( 0, 0, 32 ), Vector3( 0, 0, 48 ), Vector3( 0, 0, 48 ) ]
+"values": [ Vector3( 0, 0, 32 ), Vector3( 0, 0, 32 ), Vector3( 0, 0, 48 ), Vector3( 0, 0, 48 ), Vector3( 0, 0, 32 ) ]
 }
 tracks/11/type = "value"
 tracks/11/path = NodePath(".:lightVolumetricRange")
@@ -621,129 +621,120 @@ tracks/11/loop_wrap = true
 tracks/11/imported = false
 tracks/11/enabled = true
 tracks/11/keys = {
-"times": PoolRealArray( 0, 5.5, 9, 27 ),
-"transitions": PoolRealArray( 1, -2, 1, -2 ),
+"times": PoolRealArray( 0, 5.5, 9, 27, 30 ),
+"transitions": PoolRealArray( 1, -2, 1, -2, 1 ),
 "update": 0,
-"values": [ 64.0, 64.0, 32.0, 32.0 ]
+"values": [ 64.0, 64.0, 32.0, 32.0, 64.0 ]
 }
-tracks/12/type = "animation"
-tracks/12/path = NodePath("Skeleton/Anim")
+tracks/12/type = "value"
+tracks/12/path = NodePath("Skeleton/RootNode:translation")
 tracks/12/interp = 1
 tracks/12/loop_wrap = true
 tracks/12/imported = false
 tracks/12/enabled = true
 tracks/12/keys = {
-"clips": PoolStringArray(  ),
-"times": PoolRealArray(  )
+"times": PoolRealArray( 0, 5.5, 10.5, 22.5, 25.1, 30 ),
+"transitions": PoolRealArray( -2, -2, 1, -2, -2, -2 ),
+"update": 0,
+"values": [ Vector3( 7, -24, 0 ), Vector3( 7, -24, 0 ), Vector3( 0, -3.5, 0 ), Vector3( 0, -3.5, 0 ), Vector3( 7, -24, 0 ), Vector3( 7, -24, 0 ) ]
 }
 tracks/13/type = "value"
-tracks/13/path = NodePath("Skeleton/RootNode:translation")
+tracks/13/path = NodePath("Skeleton/RootNode/Armature/Bone/Bone001/Bone002:rotation_degrees")
 tracks/13/interp = 1
 tracks/13/loop_wrap = true
 tracks/13/imported = false
 tracks/13/enabled = true
 tracks/13/keys = {
-"times": PoolRealArray( 5.5, 10.5, 22.5, 25.1 ),
-"transitions": PoolRealArray( -2, 1, -2, -2 ),
+"times": PoolRealArray( 0, 5.5, 8.9, 10, 10.4, 22.5, 30 ),
+"transitions": PoolRealArray( -2, -2, -2, -2, 1, -2, -2 ),
 "update": 0,
-"values": [ Vector3( 7, -24, 0 ), Vector3( 0, -3.5, 0 ), Vector3( 0, -3.5, 0 ), Vector3( 7, -24, 0 ) ]
+"values": [ Vector3( 5.58682, 17.945, -40.0086 ), Vector3( 5.58682, 17.945, -40.0086 ), Vector3( 5.58682, 17.945, -40.0086 ), Vector3( -5.229, 15.398, 10 ), Vector3( -6.77462, 15.0347, -0.486879 ), Vector3( -6.77462, 15.0347, -0.486879 ), Vector3( 5.58682, 17.945, -40.0086 ) ]
 }
 tracks/14/type = "value"
-tracks/14/path = NodePath("Skeleton/RootNode/Armature/Bone/Bone001/Bone002:rotation_degrees")
+tracks/14/path = NodePath("Skeleton/RootNode/Armature/Bone/Bone001:rotation_degrees")
 tracks/14/interp = 1
 tracks/14/loop_wrap = true
 tracks/14/imported = false
 tracks/14/enabled = true
 tracks/14/keys = {
-"times": PoolRealArray( 5.5, 8.9, 10.5, 22.5 ),
-"transitions": PoolRealArray( -2, -2, 1, -2 ),
+"times": PoolRealArray( 0, 5.5, 9.1, 9.9, 10.6, 22.5, 30 ),
+"transitions": PoolRealArray( -2, -2, -2, -2, 1, -2, -2 ),
 "update": 0,
-"values": [ Vector3( 5.58682, 17.945, -40.0086 ), Vector3( 5.58682, 17.945, -40.0086 ), Vector3( -6.77462, 15.0347, -0.486879 ), Vector3( -6.77462, 15.0347, -0.486879 ) ]
+"values": [ Vector3( -0.417473, 1.28562, 9.52401 ), Vector3( -0.417473, 1.28562, 9.52401 ), Vector3( -0.417473, 1.28562, 9.52401 ), Vector3( 0.511, -0.54, 60 ), Vector3( 0.643344, -0.800333, 51.1371 ), Vector3( 0.643344, -0.800333, 51.1371 ), Vector3( -0.417473, 1.28562, 9.52401 ) ]
 }
-tracks/15/type = "value"
-tracks/15/path = NodePath("Skeleton/RootNode/Armature/Bone/Bone001:rotation_degrees")
+tracks/15/type = "bezier"
+tracks/15/path = NodePath("Skeleton/RootNode:rotation_degrees:x")
 tracks/15/interp = 1
 tracks/15/loop_wrap = true
 tracks/15/imported = false
 tracks/15/enabled = true
 tracks/15/keys = {
-"times": PoolRealArray( 5.5, 8.9, 10.5, 22.5 ),
-"transitions": PoolRealArray( -2, -2, 1, -2 ),
-"update": 0,
-"values": [ Vector3( -0.417473, 1.28562, 9.52401 ), Vector3( -0.417473, 1.28562, 9.52401 ), Vector3( 0.643344, -0.800333, 51.1371 ), Vector3( 0.643344, -0.800333, 51.1371 ) ]
+"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0, 13.6935, -0.249999, -0.253974, 1.19233, 1.21129, 0, -0.745955, 22.6011, 0.745955, -22.6011, 3.93583, -1.06739, -0.538352, 1.06739, 0.538352, -0.909334, -0.921743, 0, 0.921743, 0, 0, -0.336609, -1.08961, 0.336609, 1.08961, 3.93583, -0.52339, -1.11541, 0.52339, 1.11541, -0.909334, -0.521015, 0.529417, 0.521015, -0.529417, 0, -0.598986, -0.421472, 0.598986, 0.421472, 0, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 5.5, 8, 9.9, 12.1, 14.2, 17, 18, 20.1, 21.6, 30 )
 }
 tracks/16/type = "bezier"
-tracks/16/path = NodePath("Skeleton/RootNode:rotation_degrees:x")
+tracks/16/path = NodePath("Skeleton/RootNode:rotation_degrees:y")
 tracks/16/interp = 1
 tracks/16/loop_wrap = true
 tracks/16/imported = false
 tracks/16/enabled = true
 tracks/16/keys = {
-"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 13.6935, -0.249999, -0.253974, 1.19233, 1.21129, 0, -2, 0, 0.25, 0, 3.93583, -1.06739, -0.538352, 1.06739, 0.538352, -0.909334, -0.921743, 0, 0.921743, 0, 0, -2, 0, 0.25, 0, 3.93583, -1.06739, -0.538352, 1.06739, 0.538352, -0.909334, -0.921743, 0, 0.921743, 0, 0, -2, 0, 0.25, 0 ),
-"times": PoolRealArray( 5.5, 8, 9.9, 12.1, 14.2, 17, 18, 20.1, 21.6 )
+"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0, 9.65582, -1.34587, -0.0672932, 1.34587, 0.0672932, 0, -0.99, 0, 0.99, 0, -7.10038, -0.811085, 1.0767, 0.811085, -1.0767, 4, -0.661545, -2.76218, 0.661545, 2.76218, 0, -0.745, 0, 0.745, 0, -7.10038, -0.601015, -4.03404, 0.601015, 4.03404, 4, -0.428986, -1.68282, 0.428986, 1.68282, 0, -0.745, 0, 0.745, 0, 0, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 5.5, 8.4, 11, 13.1, 14.6, 16.1, 19.6, 20.6, 22.5, 30 )
 }
 tracks/17/type = "bezier"
-tracks/17/path = NodePath("Skeleton/RootNode:rotation_degrees:y")
+tracks/17/path = NodePath("Skeleton/RootNode:rotation_degrees:z")
 tracks/17/interp = 1
 tracks/17/loop_wrap = true
 tracks/17/imported = false
 tracks/17/enabled = true
 tracks/17/keys = {
-"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 9.65582, -1.34587, -0.0672932, 1.34587, 0.0672932, 0, -0.99, 0, 0.99, 0, -7.10038, -0.811085, 1.0767, 0.811085, -1.0767, 4, -0.661545, -2.76218, 0.661545, 2.76218, 0, -0.745, 0, 0.745, 0, -7.10038, -0.811085, 1.0767, 0.811085, -1.0767, 4, -0.661545, -2.76218, 0.661545, 2.76218, 0, -0.745, 0, 0.745, 0 ),
-"times": PoolRealArray( 5.5, 8.4, 11, 13.1, 14.6, 16.1, 19.6, 20.6, 22.5 )
-}
-tracks/18/type = "bezier"
-tracks/18/path = NodePath("Skeleton/RootNode:rotation_degrees:z")
-tracks/18/interp = 1
-tracks/18/loop_wrap = true
-tracks/18/imported = false
-tracks/18/enabled = true
-tracks/18/keys = {
-"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0, -2.65898, -0.73469, 1.88423, 0.73469, -1.88423, 5.28171, -0.771692, -3.23011, 0.771692, 3.23011, 0, -2, 0, 0.25, 0, -2.65898, -0.73469, 1.88423, 0.73469, -1.88423, 5.28171, -0.771692, -3.23011, 0.771692, 3.23011, 0, -0.227543, -15.1917, 0.227543, 15.1917, 100, -0.301945, 23.6304, 0.301945, -23.6304 ),
-"times": PoolRealArray( 5.5, 10.5, 12.1, 14.1, 16.5, 18.4, 20.1, 22, 24.3 )
+"points": PoolRealArray( 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0, 0, -0.25, 0, 0.25, 0, -2.65898, -0.73469, 1.88423, 0.73469, -1.88423, 5.28171, -0.771692, -3.23011, 0.771692, 3.23011, 0, -2, 0, 0.25, 0, -2.65898, -0.73469, 1.88423, 0.73469, -1.88423, 5.28171, -0.771692, -3.23011, 0.771692, 3.23011, 0, -0.858986, -3.23233, 0.858986, 3.23233, 100, -0.301945, 23.6304, 0.301945, -23.6304, 0, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 5.5, 10.5, 12.1, 14.1, 16.5, 18.4, 20.1, 22, 24.3, 30 )
 }
 
 [node name="Scene" type="Spatial"]
 script = ExtResource( 3 )
-lightVolumetricPower = 4.0
-riftCrackWarpAmount = 8.0
-riftCrackWidth = 0.2
-lightGradient = SubResource( 2 )
-riftPercentage = 1.0
-lightSteps = 8.0
-brickTexScale = Vector2( 2, 2 )
-lightVolumetricRange = 32.0
-brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
-lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
-displacementTiling = Vector2( 2, 2 )
-riftRadius = 80.0
-displacementAmount = 0.0
-lightVolumetricTangent = 0.5
-displacementDepth = 4.0
-displacementMotion = Vector2( 4, 4 )
-riftInnerDepthSub = -2.0
-riftOuterDepthSub = 4.0
-riftCrackTiling = Vector2( 64, 64 )
-riftCrackNoise = SubResource( 4 )
-riftInnerRadius = 22.0
-riftCrackWarpTiling = Vector2( 512, 512 )
-riftFogWidth = 5.0
+animationTime = 16.4
 riftFogColor = Color( 0.545098, 0, 1, 1 )
-brickTiling = Vector2( 8, 4 )
+lightGradient = SubResource( 2 )
+displacementTiling = Vector2( 2, 2 )
+riftInnerDepthSub = -2.0
+riftFogWidth = 5.0
 brickWidth = 1.0
-brickOffset = 4.0
+brickTexScale = Vector2( 2, 2 )
+lightSteps = 8.0
 brickDepth = 0.5
-animationTime = 15.1
-timeScale = 0.0
-riftFogMotion = Vector2( 8, 8 )
+lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
+lightVolumetricPower = 4.0
+riftCrackNoise = SubResource( 4 )
+brickOffset = 4.0
 riftFogTiling = Vector2( 128, 128 )
+riftPercentage = 1.0
+lightVolumetricTangent = 0.5
 riftFogAmplitude = 8.0
-lightRange = 64.0
+lightVolumetricRange = 32.0
+displacementDepth = 4.0
+riftCrackTiling = Vector2( 64, 64 )
+riftFogMotion = Vector2( 8, 8 )
+riftRadius = 80.0
+riftCrackWarpAmount = 8.0
+brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
+displacementMotion = Vector2( 4, 4 )
+riftInnerRadius = 22.0
+displacementAmount = 0.0
+riftOuterDepthSub = 4.0
+riftCrackWarpTiling = Vector2( 512, 512 )
+brickTiling = Vector2( 8, 4 )
+timeScale = 0.0
+riftCrackWidth = 0.2
 materialsToUpdate = [ ExtResource( 1 ), ExtResource( 2 ) ]
+lightRange = 64.0
 lightOff = Vector3( 0, 4, 0 )
 
 [node name="Parallax" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0 )
+visible = false
 material_override = ExtResource( 1 )
 mesh = SubResource( 5 )
 material/0 = null
@@ -764,7 +755,7 @@ material/0 = null
 transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0 )
 
 [node name="RootNode" type="Spatial" parent="Skeleton"]
-transform = Transform( 0.996365, -0.0416643, 0.0743068, 0.0411, 0.999114, 0.00910738, -0.0746204, -0.00602026, 0.997194, 0, -3.5, 0 )
+transform = Transform( 0.999978, -4.68999e-05, -0.00669783, 0.00012726, 0.999928, 0.011998, 0.00669678, -0.0119986, 0.999906, 0, -3.5, 0 )
 
 [node name="Armature" type="Skeleton" parent="Skeleton/RootNode"]
 transform = Transform( 100, 0, 0, 0, -3.57628e-05, 100, 0, -100, -3.57628e-05, 0, 0, 0 )
@@ -1075,10 +1066,10 @@ anims/Appear = SubResource( 28 )
 anims/Idle = SubResource( 29 )
 
 [node name="Pivot" type="Spatial" parent="."]
-transform = Transform( -0.686626, 0.647693, -0.330207, 0, 0.454198, 0.890901, 0.72701, 0.611715, -0.311865, 0, 0, 0 )
+transform = Transform( -0.376725, 0.840935, -0.388463, 0, 0.419359, 0.907821, 0.926324, 0.341998, -0.157983, 0, 0, 0 )
 
 [node name="Camera" type="Camera" parent="Pivot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 46.5099 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 45.4152 )
 current = true
 size = 64.0
 far = 200.0

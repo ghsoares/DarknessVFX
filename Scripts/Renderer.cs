@@ -2,6 +2,10 @@ using System;
 using System.Linq;
 using Godot;
 
+/*
+1st Render: 3021 seconds
+*/
+
 public class Renderer : Control
 {
     AnimationPlayer anim;
@@ -57,7 +61,12 @@ public class Renderer : Control
         float speed = time / elapsed;
         float remaining = (animDuration - time) / speed;
 
-        GD.Print($"{perc.ToString("0.0")}% Done (Remaining: {remaining.ToString("0")} seconds)");
+        string remainingTxt = remaining.ToString("0");
+        string elapsedTxt = elapsed.ToString("0");
+
+        GD.Print(
+            $"{perc.ToString("0.0")}% Done (Remaining: {remainingTxt} seconds. Elapsed: {elapsedTxt} seconds)"
+        );
 
         if (time >= animDuration)
         {
