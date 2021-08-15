@@ -9,18 +9,18 @@
 [ext_resource path="res://Models/SwordBase.material" type="Material" id=7]
 [ext_resource path="res://Models/Metal.material" type="Material" id=8]
 
+[sub_resource type="OpenSimplexNoise" id=3]
+
+[sub_resource type="NoiseTexture" id=4]
+seamless = true
+noise = SubResource( 3 )
+
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0.444444, 1 )
 colors = PoolColorArray( 0.135742, 0.0402985, 0.0911894, 1, 0.824219, 0.908333, 1, 1 )
 
 [sub_resource type="GradientTexture" id=2]
 gradient = SubResource( 1 )
-
-[sub_resource type="OpenSimplexNoise" id=3]
-
-[sub_resource type="NoiseTexture" id=4]
-seamless = true
-noise = SubResource( 3 )
 
 [sub_resource type="PlaneMesh" id=5]
 size = Vector2( 300, 300 )
@@ -695,46 +695,45 @@ tracks/17/keys = {
 
 [node name="Scene" type="Spatial"]
 script = ExtResource( 3 )
-animationTime = 16.4
-riftFogColor = Color( 0.545098, 0, 1, 1 )
-lightGradient = SubResource( 2 )
-displacementTiling = Vector2( 2, 2 )
-riftInnerDepthSub = -2.0
-riftFogWidth = 5.0
-brickWidth = 1.0
-brickTexScale = Vector2( 2, 2 )
-lightSteps = 8.0
-brickDepth = 0.5
-lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
-lightVolumetricPower = 4.0
-riftCrackNoise = SubResource( 4 )
-brickOffset = 4.0
-riftFogTiling = Vector2( 128, 128 )
-riftPercentage = 1.0
-lightVolumetricTangent = 0.5
-riftFogAmplitude = 8.0
-lightVolumetricRange = 32.0
-displacementDepth = 4.0
-riftCrackTiling = Vector2( 64, 64 )
-riftFogMotion = Vector2( 8, 8 )
-riftRadius = 80.0
-riftCrackWarpAmount = 8.0
-brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
-displacementMotion = Vector2( 4, 4 )
-riftInnerRadius = 22.0
-displacementAmount = 0.0
-riftOuterDepthSub = 4.0
 riftCrackWarpTiling = Vector2( 512, 512 )
+riftPercentage = 1.0
+riftFogAmplitude = 8.0
+brickWidth = 1.0
+displacementTiling = Vector2( 2, 2 )
+riftCrackNoise = SubResource( 4 )
+riftCrackTiling = Vector2( 64, 64 )
+brickOffset = 4.0
+brickDepth = 0.5
+displacementDepth = 4.0
+riftInnerRadius = 22.0
+lightVolumetricTangent = 0.5
+lightVolumetricRange = 32.0
+displacementMotion = Vector2( 4, 4 )
+lightVolumetricPower = 4.0
 brickTiling = Vector2( 8, 4 )
+lightColor = Color( 0.396078, 0.207843, 0.690196, 1 )
 timeScale = 0.0
+riftFogMotion = Vector2( 8, 8 )
 riftCrackWidth = 0.2
-materialsToUpdate = [ ExtResource( 1 ), ExtResource( 2 ) ]
-lightRange = 64.0
+riftCrackWarpAmount = 8.0
+riftRadius = 80.0
+brickTexScale = Vector2( 2, 2 )
+brickColor = Color( 0.286275, 0.054902, 0.188235, 1 )
+displacementAmount = 0.0
+animationTime = 9.3
+lightSteps = 8.0
+riftInnerDepthSub = -2.0
+riftFogTiling = Vector2( 128, 128 )
+lightGradient = SubResource( 2 )
+riftOuterDepthSub = 4.0
+riftFogWidth = 5.0
+riftFogColor = Color( 0.545098, 0, 1, 1 )
 lightOff = Vector3( 0, 4, 0 )
+lightRange = 64.0
+materialsToUpdate = [ ExtResource( 1 ), ExtResource( 2 ) ]
 
 [node name="Parallax" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0 )
-visible = false
 material_override = ExtResource( 1 )
 mesh = SubResource( 5 )
 material/0 = null
@@ -755,7 +754,7 @@ material/0 = null
 transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0 )
 
 [node name="RootNode" type="Spatial" parent="Skeleton"]
-transform = Transform( 0.999978, -4.68999e-05, -0.00669783, 0.00012726, 0.999928, 0.011998, 0.00669678, -0.0119986, 0.999906, 0, -3.5, 0 )
+transform = Transform( 0.990493, 0.0342363, 0.133234, 0, 0.968535, -0.248878, -0.137563, 0.246512, 0.959328, 0.806399, -5.8616, 0 )
 
 [node name="Armature" type="Skeleton" parent="Skeleton/RootNode"]
 transform = Transform( 100, 0, 0, 0, -3.57628e-05, 100, 0, -100, -3.57628e-05, 0, 0, 0 )
@@ -885,7 +884,7 @@ mesh = SubResource( 9 )
 material/0 = null
 
 [node name="Bone001" type="Spatial" parent="Skeleton/RootNode/Armature/Bone"]
-transform = Transform( 0.627275, -0.778671, -0.0139671, 0.7786, 0.627418, -0.0112282, 0.0175063, -0.0038316, 0.999839, 3.72529e-09, 0.02, -1.39698e-09 )
+transform = Transform( 0.961868, -0.272889, 0.0184541, 0.272839, 0.962044, 0.00526064, -0.0191893, -2.50376e-05, 0.999815, 3.72529e-09, 0.02, -1.39698e-09 )
 
 [node name="Arm2" type="MeshInstance" parent="Skeleton/RootNode/Armature/Bone/Bone001"]
 transform = Transform( -0.01, -2.4869e-16, -8.74228e-10, -8.74228e-10, 3.57628e-09, 0.01, 3.55271e-17, 0.01, -3.57628e-09, 0, 0.000998094, 0 )
@@ -894,7 +893,7 @@ mesh = SubResource( 10 )
 material/0 = null
 
 [node name="Bone002" type="Spatial" parent="Skeleton/RootNode/Armature/Bone/Bone001"]
-transform = Transform( 0.965994, -0.0223926, 0.257593, -0.00843821, 0.992981, 0.117964, -0.258426, -0.116126, 0.959025, -1.11759e-08, 0.0210001, 4.65661e-10 )
+transform = Transform( 0.846101, 0.442903, 0.296562, -0.450105, 0.891707, -0.0475672, -0.285515, -0.0932374, 0.953828, -1.11759e-08, 0.0210001, 4.65661e-10 )
 
 [node name="Cylinder" type="MeshInstance" parent="Skeleton/RootNode/Armature/Bone/Bone001/Bone002"]
 transform = Transform( -0.00889485, 4.47035e-10, 0.00456964, 0.00456964, 5.96046e-09, 0.00889485, -1.93715e-09, 0.01, -4.76837e-09, 0.000187675, 0.0100676, -0.00220161 )
@@ -1066,10 +1065,10 @@ anims/Appear = SubResource( 28 )
 anims/Idle = SubResource( 29 )
 
 [node name="Pivot" type="Spatial" parent="."]
-transform = Transform( -0.376725, 0.840935, -0.388463, 0, 0.419359, 0.907821, 0.926324, 0.341998, -0.157983, 0, 0, 0 )
+transform = Transform( -0.701127, -0.567279, 0.431988, 0, 0.605842, 0.795585, -0.713035, 0.557805, -0.424774, 0, 0, 0 )
 
 [node name="Camera" type="Camera" parent="Pivot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 45.4152 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 48 )
 current = true
 size = 64.0
 far = 200.0

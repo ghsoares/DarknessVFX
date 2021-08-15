@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode unshaded;
 
-const int LIGHT_STEPS = 60;
+const int LIGHT_STEPS = 32;
 
 uniform vec2 displacementTiling = vec2(8f);
 uniform vec2 displacementMotion = vec2(8f);
@@ -91,6 +91,8 @@ vec3 SceneLight(vec3 pos) {
 	vec3 l = vec3(0f);
 	
 	float rift = SampleRift(pos);
+	rift = pow(rift + .2f, 4f);
+	rift = clamp(rift, 0f, 1f);
 	//float rift= 1f;
 	
 	float centerDst = length(pos.xz);
@@ -116,10 +118,12 @@ vec3 SceneLight(vec3 pos) {
 	float riftN = rift;
 	rift = clamp(rift, 0f, 1f);
 	
-	float lightT = rift * clamp(1f - pos.y / lightVolumetricRange, 0f, 1f);
+	float lightT = rift * (1f - pos.y / lightVolumetricRange);
 	
 	float s = texture(riftCrackNoise, (pos.xz + time * vec2(8f)) / 64f).r;
 	s = s < .5f ? (1f - sqrt(1f - pow(2f * s, 2f))) / 2f : (sqrt(1f - pow(-2f * s + 2f, 2f)) + 1f) / 2f;
+	
+	s = 1f;
 	
 	lightT *= s;
 	l += lightColor.xyz * lightT * lightVolumetricPower;
@@ -145,7 +149,7 @@ vec4 SceneFog(vec3 p) {
 		vec2 m = mix(riftFogMotion * .25f, riftFogMotion, mt);
 		
 		float lN = texture(riftCrackNoise, (uv + m * time) / riftFogTiling).r;
-		lN = pow(lN * 2f, 4f) / 2f;
+		lN = pow(lN + .5f, 8f) / 2f;
 		n += clamp(lN, 0f, 1f);
 	}
 	
@@ -176,10 +180,8 @@ vec3 Light(vec3 from, vec3 to) {
 		float t = float(i) * spacing;
 		vec3 p = from * (1f - t) + to * t;
 		
-		l += SceneLight(p);
+		l += SceneLight(p) * spacing;
 	}
-	
-	l /= float(LIGHT_STEPS);
 	
 	return l;
 }
@@ -193,11 +195,14 @@ vec4 Fog(vec3 from, vec3 to) {
 		float t = float(i) * spacing;
 		vec3 p = from * (1f - t) + to * t;
 		
-		f += SceneFog(p);
+		vec4 sf = SceneFog(p) * spacing;
+		
+		f += sf;
 	}
 	
-	f /= float(LIGHT_STEPS);
-	f.a = clamp(f.a, 0f, 1f);
+	//f.a = f.a;
+	f.a = 1f - exp(-f.a * 4f);
+	f.a = clamp(f.a * 1f, 0f, 1f);
 	
 	return f;
 }

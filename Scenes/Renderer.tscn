@@ -20,41 +20,42 @@ outputPath = "C:\\Users\\Administrator\\Pictures\\RiftTest"
 anchor_right = 1.0
 anchor_bottom = 1.0
 stretch = true
-stretch_shrink = 4
+stretch_shrink = 8
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="Container"]
-size = Vector2( 256, 150 )
+size = Vector2( 128, 75 )
 size_override_stretch = true
 handle_input_locally = false
 render_target_update_mode = 3
 
 [node name="Scene" parent="Container/Viewport" instance=ExtResource( 1 )]
-animationTime = 9.96639
-riftFogColor = Color( 0.407843, 0, 1, 1 )
-riftFogWidth = 4.0
-riftFogTiling = Vector2( 32, 0.5 )
+displacementTiling = Vector2( 32, 32 )
+displacementMotion = Vector2( 8, 16 )
+timeScale = 1.0
 riftFogMotion = Vector2( 8, -0.1 )
 brickColor = Color( 0.290196, 0.145098, 0.192157, 1 )
-
-[node name="Parallax" parent="Container/Viewport/Scene" index="0"]
-visible = true
+animationTime = 12.483
+riftInnerDepthSub = -3.0
+riftFogTiling = Vector2( 32, 0.5 )
+riftFogWidth = 4.0
+riftFogColor = Color( 0.407843, 0, 1, 1 )
 
 [node name="RootNode" parent="Container/Viewport/Scene/Skeleton" index="0"]
-transform = Transform( 0.997628, -0.00229449, 0.0687933, 0, 0.999444, 0.0333349, -0.0688316, -0.0332559, 0.997074, 0.159452, -3.96697, 0 )
+transform = Transform( 0.995016, 0.0446128, -0.0891736, -0.0507087, 0.996443, -0.0673055, 0.0858537, 0.0714919, 0.993739, 0, -3.5, 0 )
 
 [node name="Bone001" parent="Container/Viewport/Scene/Skeleton/RootNode/Armature/Bone" index="1"]
-transform = Transform( 0.502312, -0.864633, -0.009506, 0.864595, 0.502388, -0.00896007, 0.0125229, -0.0037181, 0.999914, 3.72529e-09, 0.02, -1.39698e-09 )
+transform = Transform( 0.627275, -0.778671, -0.0139671, 0.7786, 0.627419, -0.0112282, 0.0175063, -0.0038316, 0.999839, 3.72529e-09, 0.02, -1.39698e-09 )
 
 [node name="Bone002" parent="Container/Viewport/Scene/Skeleton/RootNode/Armature/Bone/Bone001" index="1"]
-transform = Transform( 0.945559, -0.189617, 0.264505, 0.171333, 0.98102, 0.0907856, -0.2767, -0.0405247, 0.960101, -1.11759e-08, 0.0210001, 4.65661e-10 )
+transform = Transform( 0.965994, -0.0223926, 0.257593, -0.00843821, 0.99298, 0.117964, -0.258427, -0.116126, 0.959025, -1.11759e-08, 0.0210001, 4.65661e-10 )
 
 [node name="Pivot" parent="Container/Viewport/Scene" index="4"]
-transform = Transform( -0.814512, -0.468645, 0.341968, 0, 0.589452, 0.807802, -0.580147, 0.657966, -0.480115, 0, 0, 0 )
+transform = Transform( -0.997507, 0.0600852, -0.037019, 0, 0.524546, 0.851381, 0.0705736, 0.84926, -0.523237, 0, 0, 0 )
 
 [node name="Camera" parent="Container/Viewport/Scene/Pivot" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 48 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 47.805 )
 
 [editable path="Container/Viewport/Scene"]

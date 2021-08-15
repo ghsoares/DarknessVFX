@@ -468,7 +468,7 @@
         </member>
         <member name="M:Godot.EditorImportPlugin.GetImportOrder">
             <summary>
-            <para>Gets the order of this importer to be run when importing resources. Higher values will be called later. Use this to ensure the importer runs after the dependencies are already imported.</para>
+            <para>Gets the order of this importer to be run when importing resources. Importers with lower import orders will be called first, and higher values will be called later. Use this to ensure the importer runs after the dependencies are already imported. The default import order is <c>0</c> unless overridden by a specific importer. See <see cref="T:Godot.ResourceImporter.ImportOrder"/> for some predefined values.</para>
             </summary>
         </member>
         <member name="M:Godot.EditorImportPlugin.GetImporterName">
@@ -1038,6 +1038,16 @@
             <para>Updates the overlays of the 2D and 3D editor viewport. Causes methods <see cref="M:Godot.EditorPlugin.ForwardCanvasDrawOverViewport(Godot.Control)"/>, <see cref="M:Godot.EditorPlugin.ForwardCanvasForceDrawOverViewport(Godot.Control)"/>, <see cref="M:Godot.EditorPlugin.ForwardSpatialDrawOverViewport(Godot.Control)"/> and <see cref="M:Godot.EditorPlugin.ForwardSpatialForceDrawOverViewport(Godot.Control)"/> to be called.</para>
             </summary>
         </member>
+        <member name="M:Godot.EditorPlugin.MakeBottomPanelItemVisible(Godot.Control)">
+            <summary>
+            <para>Makes a specific item in the bottom panel visible.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.HideBottomPanel">
+            <summary>
+            <para>Minimizes the bottom panel.</para>
+            </summary>
+        </member>
         <member name="M:Godot.EditorPlugin.GetUndoRedo">
             <summary>
             <para>Gets the undo/redo object. Most actions in the editor can be undoable, so use this object to make sure this happens when it's worth it.</para>
@@ -1048,9 +1058,69 @@
             <para>Queue save the project's editor layout.</para>
             </summary>
         </member>
+        <member name="M:Godot.EditorPlugin.AddImportPlugin(Godot.EditorImportPlugin)">
+            <summary>
+            <para>Registers a new <see cref="T:Godot.EditorImportPlugin"/>. Import plugins are used to import custom and unsupported assets as a custom <see cref="T:Godot.Resource"/> type.</para>
+            <para>Note: If you want to import custom 3D asset formats use <see cref="M:Godot.EditorPlugin.AddSceneImportPlugin(Godot.EditorSceneImporter)"/> instead.</para>
+            <para>See <see cref="M:Godot.EditorPlugin.AddInspectorPlugin(Godot.EditorInspectorPlugin)"/> for an example of how to register a plugin.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.RemoveImportPlugin(Godot.EditorImportPlugin)">
+            <summary>
+            <para>Removes an import plugin registered by <see cref="M:Godot.EditorPlugin.AddImportPlugin(Godot.EditorImportPlugin)"/>.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.AddSceneImportPlugin(Godot.EditorSceneImporter)">
+            <summary>
+            <para>Registers a new <see cref="T:Godot.EditorSceneImporter"/>. Scene importers are used to import custom 3D asset formats as scenes.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.RemoveSceneImportPlugin(Godot.EditorSceneImporter)">
+            <summary>
+            <para>Removes a scene importer registered by <see cref="M:Godot.EditorPlugin.AddSceneImportPlugin(Godot.EditorSceneImporter)"/>.</para>
+            </summary>
+        </member>
         <member name="M:Godot.EditorPlugin.AddExportPlugin(Godot.EditorExportPlugin)">
             <summary>
-            <para>Registers a new export plugin. Export plugins are used when the project is being exported. See <see cref="T:Godot.EditorExportPlugin"/> for more information.</para>
+            <para>Registers a new <see cref="T:Godot.EditorExportPlugin"/>. Export plugins are used to perform tasks when the project is being exported.</para>
+            <para>See <see cref="M:Godot.EditorPlugin.AddInspectorPlugin(Godot.EditorInspectorPlugin)"/> for an example of how to register a plugin.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.RemoveExportPlugin(Godot.EditorExportPlugin)">
+            <summary>
+            <para>Removes an export plugin registered by <see cref="M:Godot.EditorPlugin.AddExportPlugin(Godot.EditorExportPlugin)"/>.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.AddSpatialGizmoPlugin(Godot.EditorSpatialGizmoPlugin)">
+            <summary>
+            <para>Registers a new <see cref="T:Godot.EditorSpatialGizmoPlugin"/>. Gizmo plugins are used to add custom gizmos to the 3D preview viewport for a <see cref="T:Godot.Spatial"/>.</para>
+            <para>See <see cref="M:Godot.EditorPlugin.AddInspectorPlugin(Godot.EditorInspectorPlugin)"/> for an example of how to register a plugin.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.RemoveSpatialGizmoPlugin(Godot.EditorSpatialGizmoPlugin)">
+            <summary>
+            <para>Removes a gizmo plugin registered by <see cref="M:Godot.EditorPlugin.AddSpatialGizmoPlugin(Godot.EditorSpatialGizmoPlugin)"/>.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.AddInspectorPlugin(Godot.EditorInspectorPlugin)">
+            <summary>
+            <para>Registers a new <see cref="T:Godot.EditorInspectorPlugin"/>. Inspector plugins are used to extend <see cref="T:Godot.EditorInspector"/> and provide custom configuration tools for your object's properties.</para>
+            <para>Note: Always use <see cref="M:Godot.EditorPlugin.RemoveInspectorPlugin(Godot.EditorInspectorPlugin)"/> to remove the registered <see cref="T:Godot.EditorInspectorPlugin"/> when your <see cref="T:Godot.EditorPlugin"/> is disabled to prevent leaks and an unexpected behavior.</para>
+            <para><code>
+            const MyInspectorPlugin = preload("res://addons/your_addon/path/to/your/script.gd")
+            var inspector_plugin = MyInspectorPlugin.new()
+            
+            func _enter_tree():
+                add_inspector_plugin(inspector_plugin)
+            
+            func _exit_tree():
+                remove_inspector_plugin(inspector_plugin)
+            </code></para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorPlugin.RemoveInspectorPlugin(Godot.EditorInspectorPlugin)">
+            <summary>
+            <para>Removes an inspector plugin registered by <see cref="M:Godot.EditorPlugin.AddImportPlugin(Godot.EditorImportPlugin)"/></para>
             </summary>
         </member>
         <member name="M:Godot.EditorPlugin.SetInputEventForwardingAlwaysEnabled">
@@ -1144,6 +1214,53 @@
             <para>If one or several properties have changed, this must be called. <c>field</c> is used in case your editor can modify fields separately (as an example, Vector3.x). The <c>changing</c> argument avoids the editor requesting this property to be refreshed (leave as <c>false</c> if unsure).</para>
             </summary>
         </member>
+        <member name="T:Godot.EditorResourcePicker">
+            <summary>
+            <para>This <see cref="T:Godot.Control"/> node is used in the editor's Inspector dock to allow editing of <see cref="T:Godot.Resource"/> type properties. It provides options for creating, loading, saving and converting resources. Can be used with <see cref="T:Godot.EditorInspectorPlugin"/> to recreate the same behavior.</para>
+            <para>Note: This <see cref="T:Godot.Control"/> does not include any editor for the resource, as editing is controlled by the Inspector dock itself or sub-Inspectors.</para>
+            </summary>
+        </member>
+        <member name="P:Godot.EditorResourcePicker.BaseType">
+            <summary>
+            <para>The base type of allowed resource types. Can be a comma-separated list of several options.</para>
+            </summary>
+        </member>
+        <member name="P:Godot.EditorResourcePicker.EditedResource">
+            <summary>
+            <para>The edited resource value.</para>
+            </summary>
+        </member>
+        <member name="P:Godot.EditorResourcePicker.Editable">
+            <summary>
+            <para>If <c>true</c>, the value can be selected and edited.</para>
+            </summary>
+        </member>
+        <member name="P:Godot.EditorResourcePicker.ToggleMode">
+            <summary>
+            <para>If <c>true</c>, the main button with the resource preview works in the toggle mode. Use <see cref="M:Godot.EditorResourcePicker.SetTogglePressed(System.Boolean)"/> to manually set the state.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorResourcePicker.HandleMenuSelected(System.Int32)">
+            <summary>
+            <para>This virtual method can be implemented to handle context menu items not handled by default. See <see cref="M:Godot.EditorResourcePicker.SetCreateOptions(Godot.Object)"/>.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorResourcePicker.SetCreateOptions(Godot.Object)">
+            <summary>
+            <para>This virtual method is called when updating the context menu of <see cref="T:Godot.EditorResourcePicker"/>. Implement this method to override the "New ..." items with your own options. <c>menu_node</c> is a reference to the <see cref="T:Godot.PopupMenu"/> node.</para>
+            <para>Note: Implement <see cref="M:Godot.EditorResourcePicker.HandleMenuSelected(System.Int32)"/> to handle these custom items.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorResourcePicker.GetAllowedTypes">
+            <summary>
+            <para>Returns a list of all allowed types and subtypes corresponding to the <see cref="P:Godot.EditorResourcePicker.BaseType"/>. If the <see cref="P:Godot.EditorResourcePicker.BaseType"/> is empty, an empty list is returned.</para>
+            </summary>
+        </member>
+        <member name="M:Godot.EditorResourcePicker.SetTogglePressed(System.Boolean)">
+            <summary>
+            <para>Sets the toggle mode state for the main button. Works only if <see cref="P:Godot.EditorResourcePicker.ToggleMode"/> is set to <c>true</c>.</para>
+            </summary>
+        </member>
         <member name="T:Godot.EditorResourcePreview">
             <summary>
             <para>This object is used to generate previews for resources of files.</para>
@@ -1152,12 +1269,14 @@
         </member>
         <member name="M:Godot.EditorResourcePreview.QueueResourcePreview(System.String,Godot.Object,System.String,System.Object)">
             <summary>
-            <para>Queue a resource file for preview (using a path). Once the preview is ready, your receiver.receiver_func will be called either containing the preview texture or an empty texture (if no preview was possible). Callback must have the format: (path,texture,userdata). Userdata can be anything.</para>
+            <para>Queue a resource file located at <c>path</c> for preview. Once the preview is ready, the <c>receiver</c>'s <c>receiver_func</c> will be called. The <c>receiver_func</c> must take the following four arguments: <see cref="T:System.String"/> path, <see cref="T:Godot.Texture"/> preview, <see cref="T:Godot.Texture"/> thumbnail_preview, <c>Variant</c> userdata. <c>userdata</c> can be anything, and will be returned when <c>receiver_func</c> is called.</para>
+            <para>Note: If it was not possible to create the preview the <c>receiver_func</c> will still be called, but the preview will be null.</para>
             </summary>
         </member>
         <member name="M:Godot.EditorResourcePreview.QueueEditedResourcePreview(Godot.Resource,Godot.Object,System.String,System.Object)">
             <summary>
-            <para>Queue a resource being edited for preview (using an instance). Once the preview is ready, your receiver.receiver_func will be called either containing the preview texture or an empty texture (if no preview was possible). Callback must have the format: (path,texture,userdata). Userdata can be anything.</para>
+            <para>Queue the <c>resource</c> being edited for preview. Once the preview is ready, the <c>receiver</c>'s <c>receiver_func</c> will be called. The <c>receiver_func</c> must take the following four arguments: <see cref="T:System.String"/> path, <see cref="T:Godot.Texture"/> preview, <see cref="T:Godot.Texture"/> thumbnail_preview, <c>Variant</c> userdata. <c>userdata</c> can be anything, and will be returned when <c>receiver_func</c> is called.</para>
+            <para>Note: If it was not possible to create the preview the <c>receiver_func</c> will still be called, but the preview will be null.</para>
             </summary>
         </member>
         <member name="M:Godot.EditorResourcePreview.AddPreviewGenerator(Godot.EditorResourcePreviewGenerator)">
@@ -1310,6 +1429,17 @@
         <member name="M:Godot.EditorScript.GetEditorInterface">
             <summary>
             <para>Returns the <see cref="T:Godot.EditorInterface"/> singleton instance.</para>
+            </summary>
+        </member>
+        <member name="T:Godot.EditorScriptPicker">
+            <summary>
+            <para>Similar to <see cref="T:Godot.EditorResourcePicker"/> this <see cref="T:Godot.Control"/> node is used in the editor's Inspector dock, but only to edit the <c>script</c> property of a <see cref="T:Godot.Node"/>. Default options for creating new resources of all possible subtypes are replaced with dedicated buttons that open the "Attach Node Script" dialog. Can be used with <see cref="T:Godot.EditorInspectorPlugin"/> to recreate the same behavior.</para>
+            <para>Note: You must set the <see cref="P:Godot.EditorScriptPicker.ScriptOwner"/> for the custom context menu items to work.</para>
+            </summary>
+        </member>
+        <member name="P:Godot.EditorScriptPicker.ScriptOwner">
+            <summary>
+            <para>The owner <see cref="T:Godot.Node"/> of the script property that holds the edited resource.</para>
             </summary>
         </member>
         <member name="T:Godot.EditorSelection">
@@ -1650,6 +1780,11 @@
         <member name="M:Godot.EditorSpatialGizmoPlugin.GetMaterial(System.String,Godot.EditorSpatialGizmo)">
             <summary>
             <para>Gets material from the internal list of materials. If an <see cref="T:Godot.EditorSpatialGizmo"/> is provided, it will try to get the corresponding variant (selected and/or editable).</para>
+            </summary>
+        </member>
+        <member name="T:Godot.EditorSpinSlider">
+            <summary>
+            <para>This <see cref="T:Godot.Control"/> node is used in the editor's Inspector dock to allow editing of numeric values. Can be used with <see cref="T:Godot.EditorInspectorPlugin"/> to recreate the same behavior.</para>
             </summary>
         </member>
         <member name="T:Godot.EditorVCSInterface">

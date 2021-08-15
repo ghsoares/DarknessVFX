@@ -1,6 +1,6 @@
 shader_type spatial;
 
-const float SURFACE_DST = .01;
+const float SURFACE_DST = 0.01f;
 const int MAX_STEPS = 64;
 const float MAX_DISTANCE = 256f;
 const float NORMAL_EPSILON = .3f;

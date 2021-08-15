@@ -1,10 +1,108 @@
 using System;
 using Godot;
 
+/*
+var alive = 0;
+var readyToAttack = 0;
+var id = 0;
+var attackSize = 3;
+
+function getAlive() {
+    alive = 0;
+    readyToAttack = 0;
+
+    for (spirit of my_spirits) {
+        if (spirit.hp > 0) {
+            alive++;
+            if (spirit.size >= attackSize) readyToAttack++;
+        }
+    }
+}
+
+function length(vec) {
+    return Math.sqrt(Math.pow(vec[0], 2) + Math.pow(vec[1], 2))
+}
+
+function distance(vec1, vec2) {
+    return Math.sqrt(Math.pow(vec2[0] - vec1[0], 2) + Math.pow(vec2[1] - vec1[1], 2))
+}
+
+function harvestBehaviour(spirit, id) {
+    if (spirit.energy == 0) spirit.set_mark("Harvest");
+    else if (spirit.energy == spirit.energy_capacity) spirit.set_mark("Unload");
+
+    var stationary = id < 10;
+
+    if (stationary) {
+        if (spirit.energy < spirit.energy_capacity) spirit.set_mark("Harvest");
+        else spirit.set_mark("Unload");
+    }
+
+    if (spirit.mark == "Harvest") {
+        if (distance(spirit.position, star_zxq.position) >= 200) {
+            spirit.move(star_zxq.position);
+        } else {
+            spirit.energize(spirit);
+        }
+    } else if (spirit.mark == "Unload") {
+        if (distance(spirit.position, base.position) >= 200 || stationary) {
+            spirit.move(base.position);
+        } else {
+            spirit.energize(base);
+        }
+    }
+}
+
+function attackNearBehaviour(spirit, id) {
+    if (spirit.sight.enemies.length > 0) {
+        var en = spirit.sight.enemies[0];
+        en = spirits[en];
+        spirit.move(en.position);
+        spirit.energize(en);
+    }
+}
+
+function mergeBehaviour(spirit, id) {
+    if (alive > 25 && spirit.size < 3) {
+        if (spirit.sight.friends.length > 0) {
+            for (var i = 0; i < spirit.sight.friends.length; i++) {
+                var fr = spirit.sight.friends[i];
+                fr = spirits[fr];
+                if (fr.size >= 3) continue;
+                spirit.move(fr.position);
+                spirit.merge(fr);
+                break;
+            }
+        }
+    }
+}
+
+function attackBehaviour(spirit, id) {
+    if (readyToAttack >= 50 && id < readyToAttack - 25) {
+        spirit.move(enemy_base.position);
+        spirit.energize(enemy_base);
+    }
+}
+
+getAlive();
+
+console.log(`Alive: ${alive} ready to attack: ${readyToAttack}`);
+
+for (spirit of my_spirits) {
+    if (spirit.hp <= 0) continue;
+
+    harvestBehaviour(spirit, id);
+    mergeBehaviour(spirit, id);
+    attackBehaviour(spirit, id);
+    attackNearBehaviour(spirit, id);
+
+    id++;
+}
+*/
+
 [Tool]
 public class Scene : Spatial
 {
-
     [Export]
     public Vector2 displacementTiling = new Vector2(8f, 8f);
     [Export]
