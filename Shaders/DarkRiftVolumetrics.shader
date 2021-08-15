@@ -40,6 +40,8 @@ uniform vec2 riftFogTiling = vec2(128f);
 uniform float riftFogAmplitude = 1f;
 uniform float riftFogWidth = 1f;
 uniform vec4 riftFogColor : hint_color = vec4(1f);
+uniform sampler2D riftFogColorGrad : hint_albedo;
+uniform float riftFogSteps = 8.0;
 
 uniform vec2 riftFogRadius = vec2(2f, 4f);
 
@@ -155,6 +157,9 @@ vec4 SceneFog(vec3 p) {
 	
 	n /= float(iterations);
 	
+	n = (n - .5) / (.5);
+	//n = clamp(n, 0.0, 1.0);
+	
 	float centerDst = length(p.xz);
 	float rT = 1f - (centerDst - riftFogRadius.x) / (riftFogRadius.y - riftFogRadius.x);
 	rT = clamp(rT, 0f, 1f);
@@ -183,6 +188,8 @@ vec3 Light(vec3 from, vec3 to) {
 		l += SceneLight(p) * spacing;
 	}
 	
+	l = max(l, 0);
+	
 	return l;
 }
 
@@ -203,6 +210,7 @@ vec4 Fog(vec3 from, vec3 to) {
 	//f.a = f.a;
 	f.a = 1f - exp(-f.a * 4f);
 	f.a = clamp(f.a * 1f, 0f, 1f);
+	f = floor(f * riftFogSteps) / (riftFogSteps - 1.0);
 	
 	return f;
 }

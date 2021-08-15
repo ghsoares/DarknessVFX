@@ -1,61 +1,61 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
 [ext_resource path="res://Scenes/Scene.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Scripts/Renderer.cs" type="Script" id=2]
 
 [node name="Renderer" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-fps = 10.0
-animationPath = NodePath("Container/Viewport/Scene/Anim")
-viewportPath = NodePath("Container/Viewport")
-animName = "RiftAppear"
-outputPath = "C:\\Users\\Administrator\\Pictures\\RiftTest"
 
 [node name="Container" type="ViewportContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 stretch = true
-stretch_shrink = 8
+stretch_shrink = 4
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="Container"]
-size = Vector2( 128, 75 )
+size = Vector2( 256, 150 )
 size_override_stretch = true
 handle_input_locally = false
 render_target_update_mode = 3
 
 [node name="Scene" parent="Container/Viewport" instance=ExtResource( 1 )]
-displacementTiling = Vector2( 32, 32 )
-displacementMotion = Vector2( 8, 16 )
-timeScale = 1.0
-riftFogMotion = Vector2( 8, -0.1 )
-brickColor = Color( 0.290196, 0.145098, 0.192157, 1 )
-animationTime = 12.483
-riftInnerDepthSub = -3.0
-riftFogTiling = Vector2( 32, 0.5 )
-riftFogWidth = 4.0
-riftFogColor = Color( 0.407843, 0, 1, 1 )
+riftInnerRadius = 0.0
+riftPercentage = 0.0
+riftFogAmplitude = 0.0
+riftFogColor = Color( 0.509804, 0.176471, 1, 1 )
+lightOff = Vector3( 0, -8, 0 )
+lightVolumetricPower = 128.0
+lightVolumetricRange = 64.0
+lightVolumetricTangent = 0.0
+animationTime = 1.7
+timeScale = 0.0
+
+[node name="Skeleton" parent="Container/Viewport/Scene" index="3"]
+visible = true
 
 [node name="RootNode" parent="Container/Viewport/Scene/Skeleton" index="0"]
-transform = Transform( 0.995016, 0.0446128, -0.0891736, -0.0507087, 0.996443, -0.0673055, 0.0858537, 0.0714919, 0.993739, 0, -3.5, 0 )
+transform = Transform( 0.999999, 0, 0, 0, 1, 0, 0, 0, 1, 7, -24, 0 )
 
 [node name="Bone001" parent="Container/Viewport/Scene/Skeleton/RootNode/Armature/Bone" index="1"]
-transform = Transform( 0.627275, -0.778671, -0.0139671, 0.7786, 0.627419, -0.0112282, 0.0175063, -0.0038316, 0.999839, 3.72529e-09, 0.02, -1.39698e-09 )
+transform = Transform( 0.98594, -0.16558, 0.0224358, 0.165456, 0.986189, 0.00728621, -0.0233324, -0.00347162, 0.999721, 3.72529e-09, 0.02, -1.39698e-09 )
 
 [node name="Bone002" parent="Container/Viewport/Scene/Skeleton/RootNode/Armature/Bone/Bone001" index="1"]
-transform = Transform( 0.965994, -0.0223926, 0.257593, -0.00843821, 0.99298, 0.117964, -0.258427, -0.116126, 0.959025, -1.11759e-08, 0.0210001, 4.65661e-10 )
+transform = Transform( 0.709403, 0.634601, 0.30664, -0.639849, 0.762308, -0.0973539, -0.295536, -0.12714, 0.946833, -1.11759e-08, 0.0210001, 4.65661e-10 )
 
 [node name="Pivot" parent="Container/Viewport/Scene" index="4"]
-transform = Transform( -0.997507, 0.0600852, -0.037019, 0, 0.524546, 0.851381, 0.0705736, 0.84926, -0.523237, 0, 0, 0 )
+transform = Transform( 0.646682, -0.539353, 0.539352, 0, 0.707107, 0.707106, -0.76276, -0.457273, 0.457272, 0, 0, 0 )
 
 [node name="Camera" parent="Container/Viewport/Scene/Pivot" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 47.805 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 32 )
+
+[node name="Anim" parent="Container/Viewport/Scene" index="5"]
+autoplay = "RiftAppear"
 
 [editable path="Container/Viewport/Scene"]

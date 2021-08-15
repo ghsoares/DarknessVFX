@@ -1,9 +1,9 @@
 shader_type spatial;
 
 const float SURFACE_DST = 0.01f;
-const int MAX_STEPS = 64;
-const float MAX_DISTANCE = 256f;
-const float NORMAL_EPSILON = .3f;
+const int MAX_STEPS = 16;
+const float MAX_DISTANCE = 1024f;
+const float NORMAL_EPSILON = .05f;
 
 uniform float lightSteps = 4f;
 uniform sampler2D lightGradient : hint_albedo;
@@ -141,11 +141,11 @@ float RayMarch(vec3 ro, vec3 rd) {
 		vec3 pos = ro + rd * d;
 		float sceneDst = Scene(pos);
 		
-		float dstAdd = sceneDst > 0f ? sceneDst * .2f : sceneDst * .1f;
+		float dstAdd = abs(sceneDst);
 		d += dstAdd;
 		pos += rd * dstAdd;
 		
-		if (d > MAX_DISTANCE || abs(sceneDst) <= SURFACE_DST) break;
+		if (d > MAX_DISTANCE || sceneDst <= SURFACE_DST) break;
 	}
 	return d;
 }
@@ -184,6 +184,6 @@ void light() {
 	float light = dot(NORMAL, LIGHT) * .5f + .5f;
 	light = floor(light * lightSteps) / (lightSteps - 1f);
 	
-	DIFFUSE_LIGHT = ALBEDO * texture(lightGradient, vec2(light)).rgb;
+	DIFFUSE_LIGHT = ALBEDO * texture(lightGradient, vec2(light)).rgb * LIGHT_COLOR;
 	SPECULAR_LIGHT = vec3(0f);
 }
